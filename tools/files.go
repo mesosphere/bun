@@ -58,7 +58,7 @@ func chooseName(p string) string {
 	p = regexp.MustCompile(`-[0-9]$`).ReplaceAllLiteralString(p, "")
 	p = strings.Replace(p, ".", "-", -1)
 	p = toSnakeCase(p)
-	p = regexp.MustCompile(` {1,}`).ReplaceAllLiteralString(p, "-")
+	p = regexp.MustCompile(` +`).ReplaceAllLiteralString(p, "-")
 	p = regexp.MustCompile(`-{2,}`).ReplaceAllLiteralString(p, "-")
 	p = strings.TrimSuffix(p, "-json")
 	pp := strings.Split(p, "-")
