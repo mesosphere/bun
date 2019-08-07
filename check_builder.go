@@ -6,10 +6,10 @@ import (
 
 const errName = "bun.CheckBuilder.Build: Check Name should not be empty"
 const errForEach = "bun.CheckBuilder.Build: At least one of the ForEach functions" +
-	"shoul be specified"
+	"should be specified"
 
 // MsgErr is a standard message used in the check summary when errors
-// occures during the check.
+// occurs during the check.
 const MsgErr = "Error(s) occurred while performing the check."
 
 // CheckHost checks an individual host. It returns status, details, and error if
@@ -17,7 +17,7 @@ const MsgErr = "Error(s) occurred while performing the check."
 // the status is ignored.
 type CheckHost func(Host) (bool, interface{}, error)
 
-// Aggregate check reults.
+// Aggregate check results.
 type Aggregate func(*Check, CheckBuilder)
 
 // Result hols results of the CheckHost function.

@@ -16,9 +16,9 @@ const (
 // of the CheckResult.
 // Each check should implement this interface.
 
-// Check cheks some aspect of the DC/OS cluster analyzing its diagnostics
+// Check checks some aspect of the DC/OS cluster analyzing its diagnostics
 // bundle.
-// Checks can be registered in the check registry with the egisterCheck function.
+// Checks can be registered in the check registry with the registerCheck function.
 // Check is not supposed to be run more than one time.
 type Check struct {
 	Name        string               // Required
