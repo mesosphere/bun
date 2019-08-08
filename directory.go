@@ -22,7 +22,7 @@ const (
 	DTRoot DirType = "root"
 	// DTMaster directory
 	DTMaster = "master"
-	// DTAgent direrctory
+	// DTAgent directory
 	DTAgent = "agent"
 	// DTPublicAgent directory
 	DTPublicAgent = "public agent"
