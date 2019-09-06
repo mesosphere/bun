@@ -4,10 +4,10 @@ DC/OS [diagnostics bundle](https://docs.mesosphere.com/1.11/cli/command-referenc
 
 ## Installation
 
-[Download binaries from the release page](https://github.com/adyatlov/bun/releases) or install from source:
+[Download binaries from the release page](https://github.com/mesosphere/bun/releases) or install from source:
 
 ```bash
-$ go get github.com/adyatlov/bun/bun
+$ go get github.com/mesosphere/bun/bun
 ```
 
 ## Usage
@@ -190,4 +190,4 @@ Please, report bugs and share your ideas for new features via the [issue page](h
 
 ## Contributing
 
-[Pull requests](https://github.com/adyatlov/bun/pulls) are welcome.
+[Pull requests](https://github.com/mesosphere/bun/pulls) are welcome.
