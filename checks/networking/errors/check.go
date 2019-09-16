@@ -13,7 +13,7 @@ var errorsRegex = "\\[error\\]|\\[critical\\]|\\[alert\\]|\\[emergency\\]"
 
 func init() {
 	builder := bun.CheckBuilder{
-		Name:                    "net-errors-checker",
+		Name:                    "networking-errors",
 		Description:             "Identify errors in dcos-net logs",
 		CollectFromMasters:      collect,
 		CollectFromAgents:       collect,
