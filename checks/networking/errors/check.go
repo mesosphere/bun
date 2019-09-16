@@ -9,7 +9,7 @@ import (
 )
 
 // http://erlang.org/doc/apps/kernel/logger_chapter.html#log_level
-var errorsRegex = "\\[error\\]|\\[critical\\]|\\[alert\\]|\\[emergency\\]"
+const ErrorRegExp = `\[(?P<Level>error|emergency|critical|alert)\]`
 
 func init() {
 	builder := bun.CheckBuilder{
@@ -25,14 +25,12 @@ func init() {
 }
 
 func collect(host bun.Host) (ok bool, details interface{}, err error) {
-	errorMatcher := regexp.MustCompile(errorsRegex)
-	keys := 0
-
+	ok = true
 	file, err := host.OpenFile("net")
 
 	if err != nil {
 		ok = false
-		errMsg := fmt.Sprintf("Cannot open net file %s", err)
+		erMsg := fmt.Sprintf("Cannot open net file %s", err)
 		fmt.Println(errMsg)
 		return
 	}
@@ -40,38 +38,40 @@ func collect(host bun.Host) (ok bool, details interface{}, err error) {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
+	pattern := regexp.MustCompile(ErrorRegExp)
+	logs := map[string]int{}
 	for scanner.Scan() {
 		line := scanner.Text()
-		if errorMatcher.MatchString(line) {
-			keys++
+		if pattern.MatchString(line) {
+			ok = false
+			res := pattern.FindStringSubmatch(line)
+			logs[res[1]]++
 		}
 	}
 
-	details = keys
-	ok = true
+	details = logs
 	return
 }
 
 func aggregate(c *bun.Check, b bun.CheckBuilder) {
 	details := []string{}
-	ok := true
 
-	c.Summary = fmt.Sprintf("There are no networking errors on dcos-net")
+	if(len(b.Problems) == 0){
+		c.OKs = details
+		c.Summary = fmt.Sprintf("No dcos-net _errors_ logs found.")
+		return
+	}
 
-	for _, r := range b.OKs {
-		v := r.Details.(int)
-		if v != 0 {
-			ok = false
-			details = append(details, fmt.Sprintf("%d log lines at %v %v with level error or bellow",
-				v, r.Host.Type, r.Host.IP))
+	for _, r := range b.Problems {
+		logs := r.Details.(map[string]int)
+		for level, count := range logs {
+			details = append(details, fmt.Sprintf("%d %v logs on %v %v",
+					count, level, r.Host.Type, r.Host.IP))
 		}
 	}
 
-	if ok {
-		c.OKs = details
-		c.Summary = "dcos-net logs are OK."
-	} else {
-		c.Problems = details
-		c.Summary = fmt.Sprintf("There are errors on dcos-net logs on %d out of %d nodes.", len(details), len(b.OKs))
-	}
+	c.Summary = fmt.Sprintf(
+		"Found dcos-net _errors_ logs on %d out of %d nodes.",
+		len(details), len(b.OKs))
+	c.Problems = details
 }
