@@ -10,7 +10,8 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-bin
+
+dist
 reference_bundle
 
 .idea

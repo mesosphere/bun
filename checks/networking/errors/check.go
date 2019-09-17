@@ -30,7 +30,7 @@ func collect(host bun.Host) (ok bool, details interface{}, err error) {
 
 	if err != nil {
 		ok = false
-		erMsg := fmt.Sprintf("Cannot open net file %s", err)
+		errMsg := fmt.Sprintf("Cannot open net file %s", err)
 		fmt.Println(errMsg)
 		return
 	}
