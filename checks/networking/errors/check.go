@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/adyatlov/bun"
+	"github.com/mesosphere/bun"
 )
 
 // http://erlang.org/doc/apps/kernel/logger_chapter.html#log_level

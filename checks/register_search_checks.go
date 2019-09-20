@@ -1,7 +1,7 @@
 package checks
 
 import (
-	"github.com/adyatlov/bun"
+	"github.com/mesosphere/bun"
 	"gopkg.in/yaml.v2"
 )
 

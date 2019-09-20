@@ -3,7 +3,7 @@ package deployments
 import (
 	"fmt"
 
-	"github.com/adyatlov/bun"
+	"github.com/mesosphere/bun"
 )
 
 // max number of Marathon deployments considered healthy

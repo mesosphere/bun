@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/adyatlov/bun/bun/cmd"
+	"github.com/mesosphere/bun/bun/cmd"
 )
 
 func main() {

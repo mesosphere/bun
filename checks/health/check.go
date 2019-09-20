@@ -2,10 +2,10 @@ package health
 
 import (
 	"fmt"
-	"github.com/adyatlov/bun/filetypes"
+	"github.com/mesosphere/bun/filetypes"
 	"strings"
 
-	"github.com/adyatlov/bun"
+	"github.com/mesosphere/bun"
 )
 
 func init() {

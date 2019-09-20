@@ -3,7 +3,7 @@ package nodecount
 import (
 	"fmt"
 
-	"github.com/adyatlov/bun"
+	"github.com/mesosphere/bun"
 )
 
 func init() {

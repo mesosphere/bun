@@ -2,10 +2,10 @@ package actormailboxes
 
 import (
 	"fmt"
-	"github.com/adyatlov/bun/filetypes"
+	"github.com/mesosphere/bun/filetypes"
 	"strings"
 
-	"github.com/adyatlov/bun"
+	"github.com/mesosphere/bun"
 )
 
 // number of events in an actor's mailbox after which the actor is

@@ -2,8 +2,8 @@ package dcosversion
 
 import (
 	"fmt"
-	"github.com/adyatlov/bun"
-	"github.com/adyatlov/bun/filetypes"
+	"github.com/mesosphere/bun"
+	"github.com/mesosphere/bun/filetypes"
 )
 
 func init() {

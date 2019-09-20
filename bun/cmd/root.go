@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/adyatlov/bun/checks"
+	"github.com/mesosphere/bun/checks"
 	"os"
 	"sort"
 
-	"github.com/adyatlov/bun"
+	"github.com/mesosphere/bun"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +21,7 @@ var rootCmd = &cobra.Command{
 		"and searches for some common problems of the DC/OS cluster.\n" +
 		"\nSpecify a subcommand to run a specific check, e.g. `bun health`\n" +
 		"or run all the available checks by not specifying any, i.e. `bun`.\n" +
-		"\nMore information is available at https://github.com/adyatlov/bun",
+		"\nMore information is available at https://github.com/mesosphere/bun",
 	PreRun: preRun,
 	Run:    runCheck,
 }

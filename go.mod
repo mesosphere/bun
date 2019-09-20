@@ -1,6 +1,6 @@
-module github.com/adyatlov/bun
+module github.com/mesosphere/bun
 
-go 1.12
+go 1.13
 
 require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect

@@ -3,7 +3,7 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"github.com/adyatlov/bun/tools"
+	"github.com/mesosphere/bun/tools"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 	"os"

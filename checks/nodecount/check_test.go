@@ -3,7 +3,7 @@ package nodecount
 import (
 	"testing"
 
-	"github.com/adyatlov/bun"
+	"github.com/mesosphere/bun"
 )
 
 func TestOK(t *testing.T) {
