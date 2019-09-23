@@ -7,8 +7,8 @@ import (
 
 var (
 	Version string
-	Commit string
-	Date string
+	Commit  string
+	Date    string
 )
 
 var versionCmd = &cobra.Command{
