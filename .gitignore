@@ -15,3 +15,5 @@ dist
 reference_bundle
 
 .idea
+
+bun/bun

@@ -21,7 +21,8 @@ builds:
 archives:
 -
   name_template: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}"
-  format: binary
+  files:
+  - none*
 
 checksum:
   name_template: 'checksums.txt'
