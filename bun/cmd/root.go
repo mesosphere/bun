@@ -28,6 +28,11 @@ var rootCmd = &cobra.Command{
 	Run:    runCheck,
 }
 
+var checkCmd = &cobra.Command{
+	Use: "check",
+	Short: "Run specific check",
+}
+
 func init() {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -54,10 +59,11 @@ func init() {
 			PreRun: preRun,
 			Run:    run,
 		}
-		rootCmd.AddCommand(cmd)
-		rootCmd.ValidArgs = append(rootCmd.ValidArgs, cmd.Use)
-		rootCmd.PreRun = preRun
+		checkCmd.AddCommand(cmd)
+		checkCmd.ValidArgs = append(rootCmd.ValidArgs, cmd.Use)
+		checkCmd.PreRun = preRun
 	}
+	rootCmd.AddCommand(checkCmd)
 }
 
 func preRun(cmd *cobra.Command, args []string) {

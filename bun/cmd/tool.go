@@ -9,8 +9,8 @@ import (
 	"os"
 )
 
-var toolsCmd = &cobra.Command{
-	Use:   "tools",
+var toolCmd = &cobra.Command{
+	Use:   "tool",
 	Short: "Bun development tool",
 	Long:  "Contains subcommands which help to add new file types and checks.",
 }
@@ -39,7 +39,7 @@ func findFiles(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	rootCmd.AddCommand(toolsCmd)
+	rootCmd.AddCommand(toolCmd)
 	var cmd = &cobra.Command{
 		Use:   "find-files",
 		Short: "Finds all file types in a given bundle",
@@ -48,5 +48,5 @@ func init() {
 		Run: findFiles,
 	}
 	cmd.Flags().BoolP("escape", "e", false, "Escape back ticks for using in the files_yaml.go")
-	toolsCmd.AddCommand(cmd)
+	toolCmd.AddCommand(cmd)
 }
