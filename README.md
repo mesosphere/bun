@@ -10,7 +10,7 @@ by analyzing its [diagnostics bundle](https://docs.mesosphere.com/1.11/cli/comma
 1. Download and unpack the binary:
 
 ```
-$ curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_darwin_amd64.tar.gz && -zxvf bun_darwin_amd64.tar.gz
+$ curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_darwin_amd64.tar.gz && tar -zxvf bun_darwin_amd64.tar.gz
 ```
 
 2. Move the `bun` binary to one of the directories in the `PATH`.
@@ -20,7 +20,7 @@ $ curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_darw
 1. Download and unpack the binary:
 
 ```
-$ curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_linux_amd64.tar.gz && -zxvf bun_linux_amd64.tar.gz
+$ curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_linux_amd64.tar.gz && tar -zxvf bun_linux_amd64.tar.gz
 ```
 
 2. Move the `bun` binary to one of the directories in the `PATH`.
