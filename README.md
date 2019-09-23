@@ -1,38 +1,39 @@
 # Bun
 
-DC/OS [diagnostics bundle](https://docs.mesosphere.com/1.11/cli/command-reference/dcos-node/dcos-node-diagnostics-create/) analysis tool
+Command-line program which detects the most common problems in a DC/OS cluster
+by analyzing its [diagnostics bundle](https://docs.mesosphere.com/1.11/cli/command-reference/dcos-node/dcos-node-diagnostics-create/).
 
 ## Installation
-
-### Linux
-
-1. Download and unpack the binary:
-
-```
-curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_linux_amd64.tar.gz && -zxvf bun_linux_amd64.tar.gz
-```
-
-2. Move the binary to one of the directories in the `PATH`.
 
 ### macOS
 
 1. Download and unpack the binary:
 
 ```
-curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_darwin_amd64.tar.gz && -zxvf bun_darwin_amd64.tar.gz
+$ curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_darwin_amd64.tar.gz && -zxvf bun_darwin_amd64.tar.gz
 ```
 
-2. Move the binary to one of the directories in the `PATH`.
+2. Move the `bun` binary to one of the directories in the `PATH`.
+
+### Linux
+
+1. Download and unpack the binary:
+
+```
+$ curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_linux_amd64.tar.gz && -zxvf bun_linux_amd64.tar.gz
+```
+
+2. Move the `bun` binary to one of the directories in the `PATH`.
 
 ### Windows
 
 1. Download [the command](https://github.com/mesosphere/bun/releases/latest/download/bun_windows_amd64.tar.gz)
-2. Unzip it and move it to one of the folders in the `PATH`.
+2. Unzip it and move the `bun` binary it to one of the folders in the `PATH`.
 
 ### From sources
 
 1. Install [Go compiler](https://golang.org/dl/).
-2. In terminal:
+2. Run the following command in your terminal:
 
 ```bash
 $ go get github.com/mesosphere/bun/bun
@@ -44,13 +45,12 @@ $ go get github.com/mesosphere/bun/bun
 $ bun - p <path to bundle directory>
 ```
 
-or simply
+or if you working directory is the bundle directory simply:
 
 ```bash
 $ bun
 ```
 
-if you working directory is the bundle directory:
 
 The output should look like that:
 
@@ -82,8 +82,9 @@ dcos-docker-gc.service: health = 1
 Please, launch the following command to learn more:
 
 ```
-bun --help
+$ bun --help
 ```
+
 ## How to contribute
 
 Please, report bugs and share your ideas for new features via the [issue page](https://github.com/mesosphere/bun/issues).
@@ -92,7 +93,7 @@ The project is written in Go; please, use [the latest version](https://golang.or
 
 To add a new feature or fix a bug, simply
 `git clone https://github.com/mesosphere/bun.git` and use your favorite
-editor or IDE. The next section explains how to add new checks.
+editor or IDE.
 
 To test your changes, build the CLI with the following commands:
 
@@ -101,12 +102,12 @@ $ cd bun
 $ go build
 ```
 
-## How to add new checks
+### How to add new checks
 
 Each check uses one or more bundle files. Please, refer to the `filetypes/files_type_yaml.go`
 file to find out a name of the file type by the file name and vice versa.
 
-### Simple search check
+#### Simple search check
 
 Simple search check fails when a specified string is found in a
 specified file of a specified type. Use it when you'd like to check if the log file
@@ -124,7 +125,7 @@ To create a new search check, simply add a YAML definition to the YAML document 
     searchString: No space left on device
 ```
 
-### Check if a certain condition is fulfilled on each node
+#### Check if a certain condition is fulfilled on each node
 
 If you would like to check for a certain condition on each node of a certain role
 (i.e.: master, agent or public agent), please use the `bun.CheckBuilder` with a default
@@ -177,7 +178,7 @@ func collect(host bun.Host) (ok bool, details interface{}, err error) {
 }
 ```
 
-### More complex checks
+#### More complex checks
 
 If you need a check which requires analysis of a collected data, you can use a custom
 aggregate function:
@@ -242,41 +243,40 @@ func aggregate(c *bun.Check, b bun.CheckBuilder) {
 }
 ```
 
-## How to release
+### How to release
 
 1. Install [GoReleaser](https://goreleaser.com/install/).
 2. Create [Github personal access token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)
     with the `repo` scope and export it as an environment variable called `GITHUB_TOKEN`:
 
-	```bash
-	$ export GITHUB_TOKEN=<your personal GitHub access token>
-	```
+  	```bash
+  	$ export GITHUB_TOKEN=<your personal GitHub access token>
+  	```
 
-	Please find more information about this step [here](https://goreleaser.com/environment/).
+    Please find more information about this step [here](https://goreleaser.com/environment/).
 3. Create a Git tag which adheres to [semantic versioning](https://semver.org/) and
-   push it to GitHub:
+    push it to GitHub:
 
     ```bash
     $ git tag -a v1.9.8 -m "Release v1.9.8"
-	$ git push origin v1.9.8
+    $ git push origin v1.9.8
     ```
 
-	If you made a mistake on this step, you can delete the tag remotely and locally:
+    If you made a mistake on this step, you can delete the tag remotely and locally:
 
-	```bash
-	$ git push origin :refs/tags/v1.9.8
-	$ git tag --delete v1.9.8
-	```
+    ```bash
+    $ git push origin :refs/tags/v1.9.8
+    $ git tag --delete v1.9.8
+    ```
 
 4. Test that the build works with the following command:
 
     ```bash
-	$ goreleaser release --skip-publish --rm-dist
-
-	```
+    $ goreleaser release --skip-publish --rm-dist
+    ```
 
 5. If everything is fine publish the build with the following command:
 
-   ```bash
+    ```bash
 	$ goreleaser release --rm-dist
-   ```
+    ```

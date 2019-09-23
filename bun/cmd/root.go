@@ -10,9 +10,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var bundlePath string
-var bundle *bun.Bundle
-var verbose = false
+var (
+	bundlePath string
+	bundle     *bun.Bundle
+	verbose    = false
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "bun",
