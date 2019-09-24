@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-var httpClient = http.Client{Timeout: 2 * time.Second}
+var httpClient = http.Client{Timeout: 5 * time.Second}
 
 func CheckNewRelease() {
 	thisVersion, err := version.NewSemver("v" + Version)
@@ -27,7 +27,6 @@ func CheckNewRelease() {
 	gh := gitHub{"mesosphere", "bun"}
 	latestVersion, err := gh.latestVersion()
 	if err != nil {
-		fmt.Println(err)
 		return
 	}
 	if thisVersion.GreaterThanOrEqual(latestVersion) {
