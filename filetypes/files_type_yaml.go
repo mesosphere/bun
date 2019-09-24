@@ -48,20 +48,20 @@ const filesYAML = `
   - master
   - agent
   - public agent
-- name: binsh-c-cat-proc`+ "`" +`systemctl-show-dcos-mesos-agent-service-p-main-pid|-cut-d'='-f2`+ "`" +`environ
+- name: binsh-c-cat-proc` + "`" + `systemctl-show-dcos-mesos-agent-service-p-main-pid|-cut-d'='-f2` + "`" + `environ
   contentType: output
   paths:
-  - binsh_-c_cat proc`+ "`" +`systemctl show dcos-mesos-slave.service -p MainPID| cut -d'='
-    -f2`+ "`" +`environ.output
+  - binsh_-c_cat proc` + "`" + `systemctl show dcos-mesos-slave.service -p MainPID| cut -d'='
+    -f2` + "`" + `environ.output
   description: ""
   dirTypes:
   - agent
   - public agent
-- name: binsh-c-cat-proc`+ "`" +`systemctl-show-dcos-mesos-master-service-p-main-pid|-cut-d'='-f2`+ "`" +`environ
+- name: binsh-c-cat-proc` + "`" + `systemctl-show-dcos-mesos-master-service-p-main-pid|-cut-d'='-f2` + "`" + `environ
   contentType: output
   paths:
-  - binsh_-c_cat proc`+ "`" +`systemctl show dcos-mesos-master.service -p MainPID| cut -d'='
-    -f2`+ "`" +`environ.output
+  - binsh_-c_cat proc` + "`" + `systemctl show dcos-mesos-master.service -p MainPID| cut -d'='
+    -f2` + "`" + `environ.output
   description: ""
   dirTypes:
   - master

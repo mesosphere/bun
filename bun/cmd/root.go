@@ -29,7 +29,7 @@ var rootCmd = &cobra.Command{
 }
 
 var checkCmd = &cobra.Command{
-	Use: "check",
+	Use:   "check",
 	Short: "Run specific check",
 }
 

@@ -7,17 +7,17 @@ import (
 )
 
 type yamlFile struct {
-	Name string `yaml:"name"`
-	ContentType string `yaml:"contentType"`
-	Paths []string `yaml:"paths"`
-	Description string `yaml:"description"`
-	DirTypes []string `yaml:"dirTypes"`
+	Name        string   `yaml:"name"`
+	ContentType string   `yaml:"contentType"`
+	Paths       []string `yaml:"paths"`
+	Description string   `yaml:"description"`
+	DirTypes    []string `yaml:"dirTypes"`
 }
 
 func init() {
 	var files []yamlFile
 	err := yaml.Unmarshal([]byte(filesYAML), &files)
-	if err !=nil {
+	if err != nil {
 		panic(err)
 	}
 	for _, file := range files {
@@ -33,11 +33,16 @@ func convert(y yamlFile) (fileType bun.FileType, err error) {
 	fileType.Name = y.Name
 	fileType.Description = y.Description
 	switch y.ContentType {
-	case string(bun.CTJson): fileType.ContentType = bun.CTJson
-	case "journal": fileType.ContentType = bun.CTJournal
-	case "dmesg": fileType.ContentType = bun.CTDmesg
-	case "output": fileType.ContentType = bun.CTOutput
-	case "other": fileType.ContentType = bun.CTOther
+	case string(bun.CTJson):
+		fileType.ContentType = bun.CTJson
+	case "journal":
+		fileType.ContentType = bun.CTJournal
+	case "dmesg":
+		fileType.ContentType = bun.CTDmesg
+	case "output":
+		fileType.ContentType = bun.CTOutput
+	case "other":
+		fileType.ContentType = bun.CTOther
 	default:
 		err = fmt.Errorf("FileType '%v' has unknown ContentType '%v'", fileType.Name, y.ContentType)
 	}
@@ -68,4 +73,3 @@ func convertDirType(s string) (d bun.DirType, err error) {
 	}
 	return
 }
-

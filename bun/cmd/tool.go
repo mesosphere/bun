@@ -15,7 +15,6 @@ var toolCmd = &cobra.Command{
 	Long:  "Contains subcommands which help to add new file types and checks.",
 }
 
-
 func findFiles(cmd *cobra.Command, args []string) {
 	fileTypes, err := tools.FindFiles(bundlePath)
 	if err != nil {
@@ -27,7 +26,7 @@ func findFiles(cmd *cobra.Command, args []string) {
 		fmt.Println(err.Error())
 		os.Exit(-1)
 	}
-	escape, err := cmd.Flags().GetBool("escape");
+	escape, err := cmd.Flags().GetBool("escape")
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(-1)

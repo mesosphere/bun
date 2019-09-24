@@ -56,7 +56,7 @@ func collect(host bun.Host) (ok bool, details interface{}, err error) {
 func aggregate(c *bun.Check, b bun.CheckBuilder) {
 	details := []string{}
 
-	if(len(b.Problems) == 0){
+	if len(b.Problems) == 0 {
 		c.OKs = details
 		c.Summary = fmt.Sprintf("No dcos-net _errors_ logs found.")
 		return
@@ -66,7 +66,7 @@ func aggregate(c *bun.Check, b bun.CheckBuilder) {
 		logs := r.Details.(map[string]int)
 		for level, count := range logs {
 			details = append(details, fmt.Sprintf("%d %v logs on %v %v",
-					count, level, r.Host.Type, r.Host.IP))
+				count, level, r.Host.Type, r.Host.IP))
 		}
 	}
 

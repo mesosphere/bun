@@ -26,4 +26,3 @@ type MesosActor struct {
 	ID     string `json:"id"`
 	Events []struct{}
 }
-

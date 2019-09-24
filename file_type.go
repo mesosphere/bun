@@ -23,10 +23,10 @@ const (
 
 // FileType Describes a kind of files in the bundle (e.g. dcos-marathon.service).
 type FileType struct {
-	Name        string `yaml:"name"`
+	Name        string      `yaml:"name"`
 	ContentType ContentType `yaml:"contentType"`
-	Paths       []string `yaml:"paths"`
-	Description string `yaml:"description"`
+	Paths       []string    `yaml:"paths"`
+	Description string      `yaml:"description"`
 	// DirTypes defines on which host types this file can be found.
 	// For example, dcos-marathon.service file can be found only on the masters.
 	DirTypes []DirType `yaml:"dirTypes"`
