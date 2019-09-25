@@ -5,6 +5,7 @@ import (
 	_ "github.com/mesosphere/bun/checks/health"
 	_ "github.com/mesosphere/bun/checks/marathon/deployments"
 	_ "github.com/mesosphere/bun/checks/mesos/actormailboxes"
+	_ "github.com/mesosphere/bun/checks/networking/cops"
 	_ "github.com/mesosphere/bun/checks/networking/errors"
 	_ "github.com/mesosphere/bun/checks/nodecount"
 )
