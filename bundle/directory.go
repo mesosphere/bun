@@ -29,8 +29,8 @@ const (
 )
 
 type directory struct {
-	Path string
 	Type DirType
+	Path string
 }
 
 type bulkCloser []io.Closer
@@ -74,10 +74,11 @@ func (d directory) OpenFile(typeName string) (File, error) {
 		}
 	}
 	if !ok {
-		panic(fmt.Sprintf("%v files do not belong to %v hosts", fileType.Name,
-			d.Type))
+		return nil, fmt.Errorf("%v files do not belong to %v hosts",
+			fileType.Name,
+			d.Type)
 	}
-	notFound := []string{}
+	var notFound []string
 	for _, localPath := range fileType.Paths {
 		filePath := path.Join(d.Path, localPath)
 		file, err := os.Open(filePath)

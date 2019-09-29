@@ -32,6 +32,7 @@ func NewBundle(path string) (Bundle, error) {
 		PublicAgents: make(map[string]Host),
 	}
 	var err error
+	b.Type = DTRoot
 	b.Path, err = filepath.Abs(path)
 	if err != nil {
 		log.Printf("bun.NewBundle: cannot determine absolute path: %v", err)
