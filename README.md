@@ -36,7 +36,7 @@ $ curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_linu
 2. Run the following command in your terminal:
 
 ```bash
-$ go get github.com/mesosphere/bun/bun
+$ go get github.com/mesosphere/bun
 ```
 
 ## Usage
@@ -98,8 +98,8 @@ editor or IDE.
 To test your changes, build the CLI with the following commands:
 
 ```
-$ cd bun
 $ go build
+$ ./go -p <path to a bun directory>
 ```
 
 ### How to add new checks

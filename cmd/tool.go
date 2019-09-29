@@ -3,10 +3,11 @@ package cmd
 import (
 	"bytes"
 	"fmt"
+	"os"
+
 	"github.com/mesosphere/bun/tools"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
-	"os"
+	yaml "gopkg.in/yaml.v2"
 )
 
 var toolCmd = &cobra.Command{

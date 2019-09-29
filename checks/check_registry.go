@@ -1,4 +1,4 @@
-package bun
+package checks
 
 import (
 	"fmt"

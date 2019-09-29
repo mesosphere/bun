@@ -9,11 +9,11 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mesosphere/bun"
+	"github.com/mesosphere/bun/bundle"
 )
 
 // FindFiles finds file types from the bundle directory.
-func FindFiles(p string) ([]bun.FileType, error) {
+func FindFiles(p string) ([]bundle.FileType, error) {
 	info, err := os.Stat(p)
 	if err != nil {
 		return nil, err
@@ -95,8 +95,8 @@ func removeDuplicates(elements []string) []string {
 }
 
 // squash file types by filenames. Sort by Path.
-func squash(types []bun.FileType) []bun.FileType {
-	typesByPath := make(map[string]bun.FileType)
+func squash(types []bundle.FileType) []bundle.FileType {
+	typesByPath := make(map[string]bundle.FileType)
 	for _, t := range types {
 		p := strings.TrimSuffix(t.Paths[0], ".gz")
 		d := t.DirTypes[0]
@@ -110,7 +110,7 @@ func squash(types []bun.FileType) []bun.FileType {
 			typesByPath[p] = existing
 		}
 	}
-	squashed := make([]bun.FileType, 0, len(typesByPath))
+	squashed := make([]bundle.FileType, 0, len(typesByPath))
 	for _, t := range typesByPath {
 		squashed = append(squashed, t)
 	}
@@ -118,7 +118,7 @@ func squash(types []bun.FileType) []bun.FileType {
 }
 
 // returns true if appended
-func appendUnique(slice []bun.DirType, d bun.DirType) ([]bun.DirType, bool) {
+func appendUnique(slice []bundle.DirType, d bundle.DirType) ([]bundle.DirType, bool) {
 	for _, dir := range slice {
 		if dir == d {
 			return slice, false
@@ -127,7 +127,7 @@ func appendUnique(slice []bun.DirType, d bun.DirType) ([]bun.DirType, bool) {
 	return append(slice, d), true
 }
 
-func readDir(p string) ([]bun.FileType, []error) {
+func readDir(p string) ([]bundle.FileType, []error) {
 	file, err := os.Open(p)
 	if err != nil {
 		return nil, []error{err}
@@ -142,7 +142,7 @@ func readDir(p string) ([]bun.FileType, []error) {
 		if err != nil {
 			return nil, []error{err}
 		}
-		fileTypes := []bun.FileType{}
+		fileTypes := []bundle.FileType{}
 		errors := []error{}
 		for _, info := range infos {
 			f, e := readDir(path.Join(p, info.Name()))
@@ -153,27 +153,27 @@ func readDir(p string) ([]bun.FileType, []error) {
 	}
 
 	name := strings.TrimSuffix(info.Name(), ".gz")
-	f := bun.FileType{}
+	f := bundle.FileType{}
 
 	// ContentType
 	ext := strings.ToLower(path.Ext(name))
 	switch ext {
 	case ".json":
-		f.ContentType = bun.CTJson
+		f.ContentType = bundle.CTJson
 	case ".service":
-		f.ContentType = bun.CTJournal
+		f.ContentType = bundle.CTJournal
 	case ".socket":
-		f.ContentType = bun.CTJournal
+		f.ContentType = bundle.CTJournal
 	case ".timer":
-		f.ContentType = bun.CTJournal
+		f.ContentType = bundle.CTJournal
 	case ".output":
 		if strings.HasPrefix(name, "dmesg") {
-			f.ContentType = bun.CTDmesg
+			f.ContentType = bundle.CTDmesg
 		} else {
-			f.ContentType = bun.CTOutput
+			f.ContentType = bundle.CTOutput
 		}
 	default:
-		f.ContentType = bun.CTOther
+		f.ContentType = bundle.CTOther
 	}
 
 	// Paths
@@ -182,24 +182,24 @@ func readDir(p string) ([]bun.FileType, []error) {
 	//DirTypes
 	f.DirTypes = append(f.DirTypes, pathToDirType(p))
 
-	return []bun.FileType{f}, nil
+	return []bundle.FileType{f}, nil
 }
 
 var re = regexp.MustCompile(`((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))_(agent_public|agent|master)(.*)`)
 
 // detect DirType by path
-func pathToDirType(p string) bun.DirType {
+func pathToDirType(p string) bundle.DirType {
 	groups := re.FindStringSubmatch(p)
 	if groups == nil {
-		return bun.DTRoot
+		return bundle.DTRoot
 	}
 	switch groups[5] {
 	case "master":
-		return bun.DTMaster
+		return bundle.DTMaster
 	case "agent":
-		return bun.DTAgent
+		return bundle.DTAgent
 	case "agent_public":
-		return bun.DTPublicAgent
+		return bundle.DTPublicAgent
 	default:
 		panic(fmt.Sprintf("unknown directory type: %v", groups[5]))
 	}

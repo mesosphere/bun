@@ -1,9 +1,9 @@
-package filetypes
+package bundle
 
 import (
 	"fmt"
-	"github.com/mesosphere/bun"
-	"gopkg.in/yaml.v2"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 type yamlFile struct {
@@ -25,29 +25,29 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		bun.RegisterFileType(fileType)
+		RegisterFileType(fileType)
 	}
 }
 
-func convert(y yamlFile) (fileType bun.FileType, err error) {
+func convert(y yamlFile) (fileType FileType, err error) {
 	fileType.Name = y.Name
 	fileType.Description = y.Description
 	switch y.ContentType {
-	case string(bun.CTJson):
-		fileType.ContentType = bun.CTJson
+	case string(CTJson):
+		fileType.ContentType = CTJson
 	case "journal":
-		fileType.ContentType = bun.CTJournal
+		fileType.ContentType = CTJournal
 	case "dmesg":
-		fileType.ContentType = bun.CTDmesg
+		fileType.ContentType = CTDmesg
 	case "output":
-		fileType.ContentType = bun.CTOutput
+		fileType.ContentType = CTOutput
 	case "other":
-		fileType.ContentType = bun.CTOther
+		fileType.ContentType = CTOther
 	default:
 		err = fmt.Errorf("FileType '%v' has unknown ContentType '%v'", fileType.Name, y.ContentType)
 	}
 	for _, s := range y.DirTypes {
-		var dirType bun.DirType
+		var dirType DirType
 		dirType, err = convertDirType(s)
 		if err != nil {
 			return
@@ -58,16 +58,16 @@ func convert(y yamlFile) (fileType bun.FileType, err error) {
 	return
 }
 
-func convertDirType(s string) (d bun.DirType, err error) {
+func convertDirType(s string) (d DirType, err error) {
 	switch s {
 	case "root":
-		d = bun.DTRoot
+		d = DTRoot
 	case "master":
-		d = bun.DTMaster
+		d = DTMaster
 	case "agent":
-		d = bun.DTAgent
+		d = DTAgent
 	case "public agent":
-		d = bun.DTPublicAgent
+		d = DTPublicAgent
 	default:
 		err = fmt.Errorf("unknown DirType: %v", s)
 	}

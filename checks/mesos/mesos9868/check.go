@@ -2,9 +2,11 @@ package mesos9868
 
 import (
 	"fmt"
-	"github.com/mesosphere/bun"
 	"sort"
 	"strings"
+
+	"github.com/mesosphere/bun/bundle"
+	"github.com/mesosphere/bun/checks"
 )
 
 type networkInfo struct {
@@ -47,10 +49,11 @@ type mesosState struct {
 type ipResults struct {
 	TaskIPs      []string
 	ContainerIPs []string
+	HostIP       string
 }
 
 func init() {
-	builder := bun.CheckBuilder{
+	builder := checks.CheckBuilder{
 		Name:                    "mesos-9868",
 		Description:             "Check if the cluster is affected by the MESOS-9868 bug",
 		CollectFromMasters:      collectMasters,
@@ -59,10 +62,10 @@ func init() {
 		Aggregate:               aggregate,
 	}
 	check := builder.Build()
-	bun.RegisterCheck(check)
+	checks.RegisterCheck(check)
 }
 
-func collectMasters(host bun.Host) (ok bool, details interface{}, err error) {
+func collectMasters(host bundle.Host) (ok bool, details interface{}, err error) {
 	var mesosState mesosState
 	ok = true
 	err = host.ReadJSON("mesos-master-state", &mesosState)
@@ -102,7 +105,7 @@ func collectMasters(host bun.Host) (ok bool, details interface{}, err error) {
 	return
 }
 
-func collectAgents(host bun.Host) (ok bool, details interface{}, err error) {
+func collectAgents(host bundle.Host) (ok bool, details interface{}, err error) {
 	var mesosContainers []mesosContainer
 	ok = true
 	err = host.ReadJSON("mesos-agent-containers", &mesosContainers)
@@ -124,7 +127,7 @@ func collectAgents(host bun.Host) (ok bool, details interface{}, err error) {
 	return
 }
 
-func aggregate(c *bun.Check, b bun.CheckBuilder) {
+func aggregate(c *checks.Check, b checks.CheckBuilder) {
 	var oks []string
 	var problems []string
 	// Collect all the ipResults from tasks and containers
@@ -169,8 +172,8 @@ func aggregate(c *bun.Check, b bun.CheckBuilder) {
 
 	if len(problems) > 0 {
 		c.Summary = fmt.Sprintf("%d containers affected by MESOS-9868", len(problems))
-	} else {
-		c.Summary = "Not affected by MESOS-9868"
+	} else if len(c.Errors) > 0 {
+		c.Summary = "Errors occurred during the check."
 	}
 
 	c.Problems = problems

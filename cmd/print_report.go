@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mesosphere/bun"
+	"github.com/mesosphere/bun/checks"
 )
 
-func printReport(c bun.Check) {
+func printReport(c checks.Check) {
 	printEmptyLine := false
 	fmt.Printf("[%v] \"%v\" - %v\n", c.Status, c.Name, c.Summary)
 	if verbose {

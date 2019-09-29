@@ -1,4 +1,4 @@
-package bun
+package bundle
 
 import (
 	"bufio"
@@ -36,7 +36,7 @@ type directory struct {
 type bulkCloser []io.Closer
 
 func (bc bulkCloser) Close() error {
-	e := []string{}
+	var e []string
 	for _, c := range bc {
 		if err := c.Close(); err != nil {
 			e = append(e, err.Error())

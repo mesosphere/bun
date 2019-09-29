@@ -2,18 +2,19 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/mesosphere/bun/checks"
 	"os"
 	"sort"
 
-	"github.com/mesosphere/bun"
+	"github.com/mesosphere/bun/bundle"
+	"github.com/mesosphere/bun/checks"
+
 	"github.com/spf13/cobra"
 )
 
 var (
-	bundlePath string
-	bundle     *bun.Bundle
-	verbose    = false
+	bundlePath    string
+	currentBundle *bundle.Bundle
+	verbose       = false
 )
 
 var rootCmd = &cobra.Command{
@@ -45,10 +46,10 @@ func init() {
 		"print details")
 	checks.RegisterSearchChecks()
 	// Adding registered checks as commands.
-	for _, c := range bun.Checks() {
+	for _, c := range checks.Checks() {
 		run := func(cmd *cobra.Command, args []string) {
-			check := bun.GetCheck(cmd.Use)
-			check.Run(*bundle)
+			check := checks.GetCheck(cmd.Use)
+			check.Run(*currentBundle)
 			printReport(check)
 			return
 		}
@@ -67,15 +68,15 @@ func init() {
 }
 
 func preRun(cmd *cobra.Command, args []string) {
-	if bundle != nil {
+	if currentBundle != nil {
 		return
 	}
-	b, err := bun.NewBundle(bundlePath)
+	b, err := bundle.NewBundle(bundlePath)
 	if err != nil {
 		fmt.Printf("Cannot find a bundle: %v\n", err.Error())
 		os.Exit(1)
 	}
-	bundle = &b
+	currentBundle = &b
 }
 
 func runCheck(cmd *cobra.Command, args []string) {
@@ -84,12 +85,12 @@ func runCheck(cmd *cobra.Command, args []string) {
 		fmt.Printf("Run '%v --help' for usage.\n", cmd.CommandPath())
 		os.Exit(1)
 	}
-	checks := bun.Checks()
+	checks := checks.Checks()
 	sort.Slice(checks, func(i, j int) bool {
 		return checks[i].Name < checks[j].Name
 	})
 	for _, check := range checks {
-		check.Run(*bundle)
+		check.Run(*currentBundle)
 		printReport(check)
 	}
 }

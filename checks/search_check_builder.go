@@ -1,7 +1,9 @@
-package bun
+package checks
 
 import (
 	"fmt"
+
+	"github.com/mesosphere/bun/bundle"
 )
 
 // SearchCheckBuilder builds a check which searches for the specified
@@ -29,21 +31,21 @@ func (b SearchCheckBuilder) Build() Check {
 		Description: b.Description,
 		Aggregate:   DefaultAggregate,
 	}
-	t := GetFileType(b.FileTypeName)
+	t := bundle.GetFileType(b.FileTypeName)
 	for _, dirType := range t.DirTypes {
 		switch dirType {
-		case DTMaster:
+		case bundle.DTMaster:
 			builder.CollectFromMasters = b.collect
-		case DTAgent:
+		case bundle.DTAgent:
 			builder.CollectFromAgents = b.collect
-		case DTPublicAgent:
+		case bundle.DTPublicAgent:
 			builder.CollectFromPublicAgents = b.collect
 		}
 	}
 	return builder.Build()
 }
 
-func (b SearchCheckBuilder) collect(host Host) (ok bool, details interface{},
+func (b SearchCheckBuilder) collect(host bundle.Host) (ok bool, details interface{},
 	err error) {
 	n, line, err := host.FindLine(b.FileTypeName, b.SearchString)
 	if err != nil {

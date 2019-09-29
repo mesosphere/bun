@@ -1,4 +1,4 @@
-package bun
+package bundle
 
 import (
 	"strings"

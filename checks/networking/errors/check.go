@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/mesosphere/bun"
+	"github.com/mesosphere/bun/bundle"
+	"github.com/mesosphere/bun/checks"
 )
 
 // http://erlang.org/doc/apps/kernel/logger_chapter.html#log_level
 const ErrorRegExp = `\[(?P<Level>error|emergency|critical|alert)\]`
 
 func init() {
-	builder := bun.CheckBuilder{
+	builder := checks.CheckBuilder{
 		Name:                    "networking-errors",
 		Description:             "Identify errors in dcos-net logs",
 		CollectFromMasters:      collect,
@@ -21,10 +22,10 @@ func init() {
 		Aggregate:               aggregate,
 	}
 	check := builder.Build()
-	bun.RegisterCheck(check)
+	checks.RegisterCheck(check)
 }
 
-func collect(host bun.Host) (ok bool, details interface{}, err error) {
+func collect(host bundle.Host) (ok bool, details interface{}, err error) {
 	ok = true
 	file, err := host.OpenFile("net")
 
@@ -53,8 +54,8 @@ func collect(host bun.Host) (ok bool, details interface{}, err error) {
 	return
 }
 
-func aggregate(c *bun.Check, b bun.CheckBuilder) {
-	details := []string{}
+func aggregate(c *checks.Check, b checks.CheckBuilder) {
+	var details []string
 
 	if len(b.Problems) == 0 {
 		c.OKs = details

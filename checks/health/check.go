@@ -2,31 +2,42 @@ package health
 
 import (
 	"fmt"
-	"github.com/mesosphere/bun/filetypes"
 	"strings"
 
-	"github.com/mesosphere/bun"
+	"github.com/mesosphere/bun/bundle"
+	"github.com/mesosphere/bun/checks"
 )
 
 func init() {
-	builder := bun.CheckBuilder{
+	builder := checks.CheckBuilder{
 		Name:                    "diagnostics-health",
 		Description:             "Check if all DC/OS components are healthy",
 		CollectFromMasters:      collect,
 		CollectFromAgents:       collect,
 		CollectFromPublicAgents: collect,
-		Aggregate:               bun.DefaultAggregate,
+		Aggregate:               checks.DefaultAggregate,
 	}
 	check := builder.Build()
-	bun.RegisterCheck(check)
+	checks.RegisterCheck(check)
 }
 
-func collect(host bun.Host) (ok bool, details interface{}, err error) {
-	h := filetypes.Host{}
+// Host represents the "host" object in the health JSON file
+type Host struct {
+	Units []Unit
+}
+
+// Unit represents the "unit" object in the health JSON file
+type Unit struct {
+	ID     string `json:"id"`
+	Health int
+}
+
+func collect(host bundle.Host) (ok bool, details interface{}, err error) {
+	h := Host{}
 	if err = host.ReadJSON("diagnostics-health", &h); err != nil {
 		return
 	}
-	unhealthy := []string{}
+	var unhealthy []string
 	for _, u := range h.Units {
 		if u.Health != 0 {
 			unhealthy = append(unhealthy,

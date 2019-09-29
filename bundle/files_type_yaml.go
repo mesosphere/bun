@@ -1,4 +1,4 @@
-package filetypes
+package bundle
 
 const filesYAML = `
 - name: active-buildinfo-full

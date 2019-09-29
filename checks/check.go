@@ -1,4 +1,6 @@
-package bun
+package checks
+
+import "github.com/mesosphere/bun/bundle"
 
 // Status defines possible check outcomes.
 type Status string
@@ -21,17 +23,17 @@ const (
 // Checks can be registered in the check registry with the registerCheck function.
 // Check is not supposed to be run more than one time.
 type Check struct {
-	Name        string               // Required
-	Description string               // Optional
-	CheckFunc   func(*Check, Bundle) // Required
-	Status      Status               // Do not set
-	Summary     string               // Do not set
-	Problems    []string             // Do not set
-	Errors      []string             // Do not set
-	OKs         []string             // Do not set
+	Name        string                      // Required
+	Description string                      // Optional
+	CheckFunc   func(*Check, bundle.Bundle) // Required
+	Status      Status                      // Do not set
+	Summary     string                      // Do not set
+	Problems    []string                    // Do not set
+	Errors      []string                    // Do not set
+	OKs         []string                    // Do not set
 }
 
 // Run runs the check.
-func (c *Check) Run(b Bundle) {
+func (c *Check) Run(b bundle.Bundle) {
 	c.CheckFunc(c, b)
 }

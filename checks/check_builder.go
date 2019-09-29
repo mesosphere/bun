@@ -1,7 +1,9 @@
-package bun
+package checks
 
 import (
 	"fmt"
+
+	"github.com/mesosphere/bun/bundle"
 )
 
 const errName = "bun.CheckBuilder.Build: Check Name should not be empty"
@@ -15,14 +17,14 @@ const MsgErr = "Error(s) occurred while performing the check."
 // CheckHost checks an individual host. It returns status, details, and error if
 // the function cannot perform a check. If the returned error is not nil, then
 // the status is ignored.
-type CheckHost func(Host) (bool, interface{}, error)
+type CheckHost func(bundle.Host) (bool, interface{}, error)
 
 // Aggregate check reults.
 type Aggregate func(*Check, CheckBuilder)
 
 // Result hols results of the CheckHost function.
 type Result struct {
-	Host    Host
+	Host    bundle.Host
 	OK      bool
 	Details interface{}
 	Err     error
@@ -67,7 +69,7 @@ func (b *CheckBuilder) Build() Check {
 	}
 }
 
-func formatMsg(h Host, msg string) string {
+func formatMsg(h bundle.Host, msg string) string {
 	return fmt.Sprintf("%v %v: %v", h.Type, h.IP, msg)
 }
 
@@ -87,7 +89,7 @@ func DefaultAggregate(c *Check, b CheckBuilder) {
 	}
 }
 
-func (b *CheckBuilder) checkHosts(c *Check, h map[string]Host, ch CheckHost) {
+func (b *CheckBuilder) checkHosts(c *Check, h map[string]bundle.Host, ch CheckHost) {
 	for _, host := range h {
 		r := Result{}
 		r.Host = host
@@ -103,7 +105,7 @@ func (b *CheckBuilder) checkHosts(c *Check, h map[string]Host, ch CheckHost) {
 }
 
 // Implementation of the Check.CheckFunc
-func (b *CheckBuilder) checkFunc(c *Check, bundle Bundle) {
+func (b *CheckBuilder) checkFunc(c *Check, bundle bundle.Bundle) {
 	if b.CollectFromMasters != nil {
 		b.checkHosts(c, bundle.Masters, b.CollectFromMasters)
 	}

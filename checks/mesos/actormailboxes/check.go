@@ -2,10 +2,10 @@ package actormailboxes
 
 import (
 	"fmt"
-	"github.com/mesosphere/bun/filetypes"
 	"strings"
 
-	"github.com/mesosphere/bun"
+	"github.com/mesosphere/bun/bundle"
+	"github.com/mesosphere/bun/checks"
 )
 
 // number of events in an actor's mailbox after which the actor is
@@ -13,7 +13,7 @@ import (
 const maxEvents = 30
 
 func init() {
-	builder := bun.CheckBuilder{
+	builder := checks.CheckBuilder{
 		Name: "mesos-actor-mailboxes",
 		Description: "Check if actor mailboxes in the Mesos process " +
 			"have a reasonable amount of messages",
@@ -22,18 +22,24 @@ func init() {
 		CollectFromMasters:      collect,
 		CollectFromAgents:       collect,
 		CollectFromPublicAgents: collect,
-		Aggregate:               bun.DefaultAggregate,
+		Aggregate:               checks.DefaultAggregate,
 	}
 	check := builder.Build()
-	bun.RegisterCheck(check)
+	checks.RegisterCheck(check)
 }
 
-func collect(host bun.Host) (ok bool, details interface{}, err error) {
-	actors := []filetypes.MesosActor{}
+// MesosActor represents the structure of the __processess__ file.
+type MesosActor struct {
+	ID     string `json:"id"`
+	Events []struct{}
+}
+
+func collect(host bundle.Host) (ok bool, details interface{}, err error) {
+	var actors []MesosActor
 	if err = host.ReadJSON("mesos-processes", &actors); err != nil {
 		return
 	}
-	u := []string{}
+	var u []string
 	for _, a := range actors {
 		if len(a.Events) > maxEvents {
 			u = append(u, fmt.Sprintf("(Mesos) %v@%v: mailbox size = %v (> %v)",

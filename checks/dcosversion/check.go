@@ -2,12 +2,13 @@ package dcosversion
 
 import (
 	"fmt"
-	"github.com/mesosphere/bun"
-	"github.com/mesosphere/bun/filetypes"
+
+	"github.com/mesosphere/bun/bundle"
+	"github.com/mesosphere/bun/checks"
 )
 
 func init() {
-	builder := bun.CheckBuilder{
+	builder := checks.CheckBuilder{
 		Name: "dcos-version",
 		Description: "Verify that all hosts in the cluster have the " +
 			"same DC/OS version installed",
@@ -17,11 +18,16 @@ func init() {
 		Aggregate:               aggregate,
 	}
 	check := builder.Build()
-	bun.RegisterCheck(check)
+	checks.RegisterCheck(check)
 }
 
-func collect(host bun.Host) (ok bool, details interface{}, err error) {
-	v := filetypes.Version{}
+// Version represents the dcos-version JSON file
+type Version struct {
+	Version string
+}
+
+func collect(host bundle.Host) (ok bool, details interface{}, err error) {
+	v := Version{}
 	if err = host.ReadJSON("dcos-version", &v); err != nil {
 		return
 	}
@@ -30,7 +36,7 @@ func collect(host bun.Host) (ok bool, details interface{}, err error) {
 	return
 }
 
-func aggregate(c *bun.Check, b bun.CheckBuilder) {
+func aggregate(c *checks.Check, b checks.CheckBuilder) {
 	version := ""
 	// Compare versions
 	details := []string{}

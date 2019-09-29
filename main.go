@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/mesosphere/bun/bun/cmd"
+	"github.com/mesosphere/bun/cmd"
 )
 
 // Populated by GoReleaser

@@ -6,7 +6,6 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/go-version"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -15,6 +14,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"time"
+
+	version "github.com/hashicorp/go-version"
 )
 
 var httpClient = http.Client{Timeout: 5 * time.Second}
