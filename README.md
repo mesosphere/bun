@@ -95,11 +95,11 @@ To add a new feature or fix a bug, simply
 `git clone https://github.com/mesosphere/bun.git` and use your favorite
 editor or IDE.
 
-To test your changes, build the CLI with the following commands:
+To test your changes, simply build the CLI and launch it against some bundle:
 
 ```
 $ go build
-$ ./go -p <path to a bun directory>
+$ ./go -p <path to a bundle directory>
 ```
 
 ### How to add new checks
