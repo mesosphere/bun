@@ -1,4 +1,4 @@
-module github.com/mesosphere/bun
+module github.com/mesosphere/bun/v2
 
 go 1.13
 

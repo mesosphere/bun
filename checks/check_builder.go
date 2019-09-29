@@ -3,7 +3,7 @@ package checks
 import (
 	"fmt"
 
-	"github.com/mesosphere/bun/bundle"
+	"github.com/mesosphere/bun/v2/bundle"
 )
 
 const errName = "bun.CheckBuilder.Build: Check Name should not be empty"

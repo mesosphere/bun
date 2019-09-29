@@ -3,7 +3,7 @@ package checks
 import (
 	"fmt"
 
-	"github.com/mesosphere/bun/bundle"
+	"github.com/mesosphere/bun/v2/bundle"
 )
 
 // SearchCheckBuilder builds a check which searches for the specified

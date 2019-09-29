@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mesosphere/bun/tools"
+	"github.com/mesosphere/bun/v2/tools"
 	"github.com/spf13/cobra"
 	yaml "gopkg.in/yaml.v2"
 )

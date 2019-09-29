@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mesosphere/bun/checks"
+	"github.com/mesosphere/bun/v2/checks"
 )
 
 func printReport(c checks.Check) {

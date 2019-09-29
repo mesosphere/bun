@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mesosphere/bun/bundle"
-	"github.com/mesosphere/bun/checks"
+	"github.com/mesosphere/bun/v2/bundle"
+	"github.com/mesosphere/bun/v2/checks"
 )
 
 type networkInfo struct {

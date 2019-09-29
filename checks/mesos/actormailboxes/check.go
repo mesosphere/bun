@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mesosphere/bun/bundle"
-	"github.com/mesosphere/bun/checks"
+	"github.com/mesosphere/bun/v2/bundle"
+	"github.com/mesosphere/bun/v2/checks"
 )
 
 // number of events in an actor's mailbox after which the actor is

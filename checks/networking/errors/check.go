@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/mesosphere/bun/bundle"
-	"github.com/mesosphere/bun/checks"
+	"github.com/mesosphere/bun/v2/bundle"
+	"github.com/mesosphere/bun/v2/checks"
 )
 
 // http://erlang.org/doc/apps/kernel/logger_chapter.html#log_level

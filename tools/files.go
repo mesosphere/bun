@@ -9,7 +9,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mesosphere/bun/bundle"
+	"github.com/mesosphere/bun/v2/bundle"
 )
 
 // FindFiles finds file types from the bundle directory.

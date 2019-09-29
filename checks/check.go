@@ -1,6 +1,6 @@
 package checks
 
-import "github.com/mesosphere/bun/bundle"
+import "github.com/mesosphere/bun/v2/bundle"
 
 // Status defines possible check outcomes.
 type Status string
