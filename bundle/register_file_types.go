@@ -30,7 +30,7 @@ func init() {
 }
 
 func convert(y yamlFile) (fileType FileType, err error) {
-	fileType.Name = y.Name
+	fileType.Name = FileTypeName(y.Name)
 	fileType.Description = y.Description
 	switch y.ContentType {
 	case string(CTJson):

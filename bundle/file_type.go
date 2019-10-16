@@ -21,23 +21,25 @@ const (
 	CTOther = "other"
 )
 
+type FileTypeName string
+
 // FileType Describes a kind of files in the bundle (e.g. dcos-marathon.service).
 type FileType struct {
-	Name        string      `yaml:"name"`
-	ContentType ContentType `yaml:"contentType"`
-	Paths       []string    `yaml:"paths"`
-	Description string      `yaml:"description"`
+	Name        FileTypeName `yaml:"name"`
+	ContentType ContentType  `yaml:"contentType"`
+	Paths       []string     `yaml:"paths"`
+	Description string       `yaml:"description"`
 	// DirTypes defines on which host types this file can be found.
 	// For example, dcos-marathon.service file can be found only on the masters.
 	DirTypes []DirType `yaml:"dirTypes"`
 }
 
 var (
-	fileTypes   = make(map[string]FileType)
+	fileTypes   = make(map[FileTypeName]FileType)
 	fileTypesMu sync.RWMutex
 )
 
-// RegisterFileType adds the file type to the filetype registry. It panics
+// RegisterFileType adds the file type to the file type registry. It panics
 // if the file type with the same name is already registered.
 func RegisterFileType(f FileType) {
 	fileTypesMu.Lock()
@@ -57,7 +59,7 @@ func RegisterFileType(f FileType) {
 
 // GetFileType returns a file type by its name. It panics if the file type
 // is not in the registry.
-func GetFileType(typeName string) FileType {
+func GetFileType(typeName FileTypeName) FileType {
 	fileTypesMu.RLock()
 	defer fileTypesMu.RUnlock()
 	fileType, ok := fileTypes[typeName]

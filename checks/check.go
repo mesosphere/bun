@@ -25,6 +25,7 @@ const (
 type Check struct {
 	Name        string                      // Required
 	Description string                      // Optional
+	Cure        string                      // Optional
 	CheckFunc   func(*Check, bundle.Bundle) // Required
 	Status      Status                      // Do not set
 	Summary     string                      // Do not set

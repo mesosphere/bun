@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 )
 
@@ -64,7 +65,7 @@ type File interface {
 // If the file is not found, it tries to open it from a correspondent .gzip archive.
 // If the .gzip archive is not found as well then returns an error.
 // Caller is responsible for closing the file.
-func (d directory) OpenFile(typeName string) (File, error) {
+func (d directory) OpenFile(typeName FileTypeName) (File, error) {
 	fileType := GetFileType(typeName)
 	ok := false
 	for _, dirType := range fileType.DirTypes {
@@ -117,7 +118,7 @@ func (d directory) OpenFile(typeName string) (File, error) {
 
 // ReadJSON reads JSON-encoded data from the bundle file and stores the result in
 // the value pointed to by v.
-func (d directory) ReadJSON(typeName string, v interface{}) error {
+func (d directory) ReadJSON(typeName FileTypeName, v interface{}) error {
 	fileType := GetFileType(typeName)
 	if fileType.ContentType != CTJson {
 		panic(fmt.Sprintf("Content of the %v file is not JSON", typeName))
@@ -138,10 +139,18 @@ func (d directory) ReadJSON(typeName string, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
 
-// FindLine returns a number and a content of the first line in a file of
+// FindLine returns a number of lines found in a file of
 // a type t which contains a substring s.
 // If the line is not found, n == 0.
-func (d directory) FindLine(t string, s string) (n int, l string, err error) {
+func (d directory) FindLine(t FileTypeName, s string) (n uint, err error) {
+	return d.findLine(t, s, nil)
+}
+
+func (d directory) FindLineRegexp(t FileTypeName, rx *regexp.Regexp) (uint, error) {
+	return d.findLine(t, "", rx)
+}
+
+func (d directory) findLine(t FileTypeName, substr string, rx *regexp.Regexp) (n uint, err error) {
 	var file File
 	file, err = d.OpenFile(t)
 	if err != nil {
@@ -160,17 +169,17 @@ func (d directory) FindLine(t string, s string) (n int, l string, err error) {
 			}
 		}
 	}()
-	return findLine(file, s)
-}
-
-func findLine(r io.Reader, substr string) (n int, l string, err error) {
-	scanner := bufio.NewScanner(r)
+	scanner := bufio.NewScanner(file)
 	for i := 1; scanner.Scan(); i++ {
 		line := scanner.Text()
-		if strings.Contains(line, substr) {
-			l = line
-			n = i
-			return
+		contains := false
+		if rx == nil {
+			contains = strings.Contains(line, substr)
+		} else {
+			contains = rx.MatchString(line)
+		}
+		if contains {
+			n++
 		}
 	}
 	if err = scanner.Err(); err != nil {

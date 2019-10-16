@@ -28,7 +28,7 @@ func FindFiles(p string) ([]bundle.FileType, error) {
 	}
 	fileTypes = squash(fileTypes)
 	for i, t := range fileTypes {
-		t.Name = chooseName(t.Paths[0])
+		t.Name = bundle.FileTypeName(chooseName(t.Paths[0]))
 		fileTypes[i] = t
 	}
 	sort.Slice(fileTypes, func(i, j int) bool {

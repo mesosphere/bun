@@ -147,7 +147,7 @@ const filesYAML = `
   - master
   - agent
   - public agent
-- name: cockroach
+- name: cockroach-log
   contentType: journal
   paths:
   - dcos-cockroach.service
@@ -847,6 +847,9 @@ const filesYAML = `
   contentType: journal
   paths:
   - dcos-net.service
+  - dcos-minuteman.service
+  - dcos-navstar.service
+  - dcos-spartan.service
   description: ""
   dirTypes:
   - master

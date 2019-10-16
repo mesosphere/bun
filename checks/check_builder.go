@@ -34,6 +34,7 @@ type Result struct {
 type CheckBuilder struct {
 	Name                    string    // Required
 	Description             string    // Optional
+	Cure                    string    // Optional
 	CollectFromMasters      CheckHost // At least one of
 	CollectFromAgents       CheckHost // the Collect... functions
 	CollectFromPublicAgents CheckHost // are required
@@ -65,6 +66,7 @@ func (b *CheckBuilder) Build() Check {
 	return Check{
 		Name:        b.Name,
 		Description: b.Description,
+		Cure:        b.Cure,
 		CheckFunc:   b.checkFunc,
 	}
 }
