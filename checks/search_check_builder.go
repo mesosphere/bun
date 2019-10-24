@@ -15,7 +15,7 @@ import (
 type SearchCheckBuilder struct {
 	Name                 string              `yaml:"name"`                 // Required
 	Description          string              `yaml:"description"`          // Optional
-	Cure                 string              `yaml:"cure"`                 // Optional
+	Cure                 string              `yaml:"cure"`                 // Required
 	FileTypeName         bundle.FileTypeName `yaml:"fileTypeName"`         // Required
 	ErrorPattern         string              `yaml:"errorPattern"`         // Required
 	CurePattern          string              `yaml:"curePattern"`          // Optional
@@ -33,6 +33,9 @@ func (b SearchCheckBuilder) Build() Check {
 	}
 	if b.ErrorPattern == "" {
 		panic("ErrorPattern should be set.")
+	}
+	if b.Cure == "" {
+		panic("Cure should be set.")
 	}
 	if b.IsErrorPatternRegexp {
 		b.errorRegexp = regexp.MustCompile(b.ErrorPattern)
@@ -99,7 +102,6 @@ func (b SearchCheckBuilder) collect(host bundle.Host) (ok bool, details interfac
 		return false
 	}
 	err = host.ScanLines(b.FileTypeName, f)
-	fmt.Println(lastN, lastNCure)
 	if count > b.Max && lastN > lastNCure {
 		details = fmt.Sprintf("%v problems occurred in the logs.", count)
 		return

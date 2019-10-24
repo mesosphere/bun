@@ -44,7 +44,6 @@ func printProblems(c checks.Check) {
 	fmt.Println("Problem details")
 	fmt.Println("---------------")
 	fmt.Println(strings.Join(c.Problems, "\n"))
-	fmt.Print("\n")
 	if c.Cure != "" {
 		printCure(c)
 	}
