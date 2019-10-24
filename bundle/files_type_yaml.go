@@ -843,7 +843,7 @@ const filesYAML = `
   description: ""
   dirTypes:
   - master
-- name: net
+- name: net-log
   contentType: journal
   paths:
   - dcos-net.service

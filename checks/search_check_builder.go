@@ -99,6 +99,7 @@ func (b SearchCheckBuilder) collect(host bundle.Host) (ok bool, details interfac
 		return false
 	}
 	err = host.ScanLines(b.FileTypeName, f)
+	fmt.Println(lastN, lastNCure)
 	if count > b.Max && lastN > lastNCure {
 		details = fmt.Sprintf("%v problems occurred in the logs.", count)
 		return
