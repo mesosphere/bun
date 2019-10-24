@@ -139,22 +139,16 @@ func (d directory) ReadJSON(typeName FileTypeName, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
 
-// FindLine returns a number of lines found in a file of
-// a type t which contains a substring s.
-// If the line is not found, n == 0.
-func (d directory) FindLine(t FileTypeName, s string) (n uint, err error) {
-	return d.findLine(t, s, nil)
+type SearchRequest struct {
+	PatternS string
+	PatternR *regexp.Regexp
+	F        func(line string, n int) bool
 }
 
-func (d directory) FindLineRegexp(t FileTypeName, rx *regexp.Regexp) (uint, error) {
-	return d.findLine(t, "", rx)
-}
-
-func (d directory) findLine(t FileTypeName, substr string, rx *regexp.Regexp) (n uint, err error) {
-	var file File
-	file, err = d.OpenFile(t)
+func (d directory) ScanLines(t FileTypeName, f func(n int, line string) bool) error {
+	file, err := d.OpenFile(t)
 	if err != nil {
-		return
+		return err
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
@@ -172,19 +166,13 @@ func (d directory) findLine(t FileTypeName, substr string, rx *regexp.Regexp) (n
 	scanner := bufio.NewScanner(file)
 	for i := 1; scanner.Scan(); i++ {
 		line := scanner.Text()
-		contains := false
-		if rx == nil {
-			contains = strings.Contains(line, substr)
-		} else {
-			contains = rx.MatchString(line)
-		}
-		if contains {
-			n++
+		if f(i, line) {
+			return nil
 		}
 	}
 	if err = scanner.Err(); err != nil {
-		return
+		return err
 	}
 	// Not found
-	return
+	return nil
 }

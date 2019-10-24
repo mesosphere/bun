@@ -122,7 +122,7 @@ To create a new search check, simply add a YAML definition to the YAML document 
   - name: disk-space-exhibitor
     description: Check disk space errors in Exhibitor logs
     fileTypeName: exhibitor-log
-    searchString: No space left on device
+    errorPattern: No space left on device
 ```
 
 #### Check if a certain condition is fulfilled on each node
