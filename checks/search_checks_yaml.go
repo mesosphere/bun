@@ -60,7 +60,7 @@ const searchChecksYAML = `
   fileTypeName: mesos-agent-log
   errorPattern: 'Container.*Failed to perform ''curl''.*SSL certificate problem: self signed certificate' 
   isErrorPatternRegexp: true
-  cure: Mesos agent is using certificates which don't allow it to fetch an artifact from some repository. Please see https://jira.mesosphere.com/browse/COPS-2315 and https://jira.mesosphere.com/browse/COPS-2106 for more information."
+  cure: 'Mesos agent is using certificates which does not allow to fetch an artifact from some repository. Please see https://jira.mesosphere.com/browse/COPS-2315 and https://jira.mesosphere.com/browse/COPS-2106 for more information.'
 
 - name: overlay-network-recovery
   descriptions: Checks if the DC/OS overlay network master is in recovery state
@@ -69,12 +69,18 @@ const searchChecksYAML = `
   isErrorPatternRegexp: true
   curePattern: 'Moving overlay-master.* to .*RECOVERED.* state.'
   isCurePatternRegexp: true
-  cure: Mesos master Overlay module cannot recover. Please see the KB articles https://support.d2iq.com/s/article/Known-Issue-Invalid-DNS-Resolvers-MSPH-2018-0012 and https://support.d2iq.com/s/article/Critical-Issue-with-Overlay-Networking for more information.
+  cure: 'Mesos master Overlay module cannot recover. Please see the KB articles https://support.d2iq.com/s/article/Known-Issue-Invalid-DNS-Resolvers-MSPH-2018-0012 and https://support.d2iq.com/s/article/Critical-Issue-with-Overlay-Networking for more information.'
 
 - name: kmem-errors
   description: Detects kernel memory (kmem) errors in dmesg log
   fileTypeName: dmesg-log
   errorPattern: '(SLUB: Unable to allocate memory on node -1|task .+ blocked for more than .+ seconds)'
   isErrorPatternRegexp: true
-  cure: Please see KB articles https://support.mesosphere.com/s/article/Critical-Issue-KMEM-MSPH-2018-0006 and https://support.mesosphere.com/s/article/Known-Issue-KMEM-with-Kubernetes-MSPH-2019-0002 
+  cure: 'Please see KB articles https://support.mesosphere.com/s/article/Critical-Issue-KMEM-MSPH-2018-0006 and https://support.mesosphere.com/s/article/Known-Issue-KMEM-with-Kubernetes-MSPH-2019-0002' 
+
+- name: oom-kills
+  description: Detects out of memory kills in dmesg log
+  fileTypeName: dmesg-log
+  errorPattern: 'invoked oom-killer'
+  cure: 'The operating system is killing processes which exceed system or container memory limits. Please check which processes are getting killed. If it is a DC/OS container, increase its memory limit.'
 `
