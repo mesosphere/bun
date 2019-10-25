@@ -212,9 +212,11 @@ const filesYAML = `
   - master
   - agent
   - public agent
-- name: dmesg-t
+- name: dmesg-log
   contentType: dmesg
   paths:
+  - dmesg-0.output
+  - dmesg_-T-0.output
   - dmesg_-T.output
   description: ""
   dirTypes:

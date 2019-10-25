@@ -69,5 +69,12 @@ const searchChecksYAML = `
   isErrorPatternRegexp: true
   curePattern: 'Moving overlay-master.* to .*RECOVERED.* state.'
   isCurePatternRegexp: true
-  cure: Please see the KB articles https://support.d2iq.com/s/article/Known-Issue-Invalid-DNS-Resolvers-MSPH-2018-0012 and https://support.d2iq.com/s/article/Critical-Issue-with-Overlay-Networking for more information.
+  cure: Mesos master Overlay module cannot recover. Please see the KB articles https://support.d2iq.com/s/article/Known-Issue-Invalid-DNS-Resolvers-MSPH-2018-0012 and https://support.d2iq.com/s/article/Critical-Issue-with-Overlay-Networking for more information.
+
+- name: kmem-errors
+  description: Detects kernel memory (kmem) errors in dmesg log
+  fileTypeName: dmesg-log
+  errorPattern: '(SLUB: Unable to allocate memory on node -1|task .+ blocked for more than .+ seconds)'
+  isErrorPatternRegexp: true
+  cure: Please see KB articles https://support.mesosphere.com/s/article/Critical-Issue-KMEM-MSPH-2018-0006 and https://support.mesosphere.com/s/article/Known-Issue-KMEM-with-Kubernetes-MSPH-2019-0002 
 `
