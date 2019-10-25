@@ -22,6 +22,7 @@ type SearchCheckBuilder struct {
 	IsErrorPatternRegexp bool                `yaml:"isErrorPatternRegexp"` // Optional, default is false
 	IsCurePatternRegexp  bool                `yaml:"isCurePatternRegexp"`  // Optional, default is false
 	Max                  int                 `yaml:"max"`                  // Optional, default is 0
+	FailIfNotFound       bool                `yaml:"failIfNotFound"`       // Optional, default false
 	errorRegexp          *regexp.Regexp
 	cureRegexp           *regexp.Regexp
 }
@@ -36,6 +37,9 @@ func (b SearchCheckBuilder) Build() Check {
 	}
 	if b.Cure == "" {
 		panic("Cure should be set.")
+	}
+	if b.FailIfNotFound && b.CurePattern != "" {
+		panic("FailIfNotFound and CurePattern are mutually exclusive")
 	}
 	if b.IsErrorPatternRegexp {
 		b.errorRegexp = regexp.MustCompile(b.ErrorPattern)
@@ -95,6 +99,9 @@ func (b SearchCheckBuilder) collect(host bundle.Host) (ok bool, details interfac
 		if matchError(line) {
 			count++
 			lastN = n
+			if b.FailIfNotFound {
+				return true
+			}
 		}
 		if matchCure(line) {
 			lastNCure = n
@@ -102,9 +109,19 @@ func (b SearchCheckBuilder) collect(host bundle.Host) (ok bool, details interfac
 		return false
 	}
 	err = host.ScanLines(b.FileTypeName, f)
-	if count > b.Max && lastN > lastNCure {
-		details = fmt.Sprintf("%v problems occurred in the logs.", count)
-		return
+	if err != nil {
+		return false, nil, err
+	}
+	if b.FailIfNotFound {
+		if count == 0 {
+			details = "Pattern is not found."
+			return
+		}
+	} else {
+		if count > b.Max && lastN > lastNCure {
+			details = fmt.Sprintf("%v problems occurred in the logs.", count)
+			return
+		}
 	}
 	details = "No problems were found"
 	ok = true

@@ -920,9 +920,11 @@ const filesYAML = `
   - master
   - agent
   - public agent
-- name: ps-aux-ww-z
+- name: ps
   contentType: output
   paths:
+  - ps_aux_ww-4.output
+  - ps_aux_ww_Z-3.output
   - ps_aux_ww_Z.output
   description: ""
   dirTypes:

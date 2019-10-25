@@ -83,4 +83,11 @@ const searchChecksYAML = `
   fileTypeName: dmesg-log
   errorPattern: 'invoked oom-killer'
   cure: 'The operating system is killing processes which exceed system or container memory limits. Please check which processes are getting killed. If it is a DC/OS container, increase its memory limit.'
+
+- name: docker-running
+  description: Checks if docker is running
+  fileTypeName: ps
+  errorPattern: 'dockerd'
+  failIfNotFound: true
+  cure: 'Docker daemon should be running on all DC/OS nodes.'
 `
