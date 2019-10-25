@@ -84,10 +84,22 @@ const searchChecksYAML = `
   errorPattern: 'invoked oom-killer'
   cure: 'The operating system is killing processes which exceed system or container memory limits. Please check which processes are getting killed. If it is a DC/OS container, increase its memory limit.'
 
-- name: docker-running
+- name: docker-not-running
   description: Checks if docker is running
   fileTypeName: ps
   errorPattern: 'dockerd'
   failIfNotFound: true
   cure: 'Docker daemon should be running on all DC/OS nodes.'
+
+- name: nscd-running
+  description: Detects if Name Service Cache Daemon (nscd) is running on a DC/OS node
+  fileTypeName: ps
+  errorPattern: 'nscd'
+  cure: 'Please ensure that nscd is stopped and disabled.'
+
+- name: firewalld-running
+  description: Detects if firewalld is running on a DC/OS node
+  fileTypeName: ps
+  errorPattern: 'firewalld'
+  cure: 'Please ensure that firewalld is stopped and disabled.'
 `
