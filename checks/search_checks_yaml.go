@@ -74,7 +74,7 @@ const searchChecksYAML = `
 - name: kmem-errors
   description: Detects kernel memory (kmem) errors in dmesg log
   fileTypeName: dmesg-log
-  errorPattern: '(SLUB: Unable to allocate memory on node -1|task .+ blocked for more than .+ seconds)'
+  errorPattern: 'SLUB: Unable to allocate memory on node -1'
   isErrorPatternRegexp: true
   cure: 'Please see KB articles https://support.mesosphere.com/s/article/Critical-Issue-KMEM-MSPH-2018-0006 and https://support.mesosphere.com/s/article/Known-Issue-KMEM-with-Kubernetes-MSPH-2019-0002' 
 
@@ -102,4 +102,11 @@ const searchChecksYAML = `
   fileTypeName: ps
   errorPattern: 'firewalld'
   cure: 'Please ensure that firewalld is stopped and disabled.'
+
+- name: task-blocked
+  description: Detects if tasks were blocked for a long time, which, most probably, a manifestation of slow I/O.
+  fileTypeName: dmesg-log
+  errorPattern: 'task .+ blocked for more than .+ seconds'
+  isErrorPatternRegexp: true
+  cure: 'Please, see this article for more information: https://helpful.knobs-dials.com/index.php/INFO:_task_blocked_for_more_than_120_seconds.' 
 `
