@@ -9,7 +9,15 @@ import (
 
 func printReport(c checks.Check) {
 	printEmptyLine := false
-	fmt.Printf("[%v] \"%v\" - %v\n", c.Status, c.Name, c.Summary)
+	var color string
+	if c.Status == checks.SOK {
+		color = "\033[32;1m"
+	} else if c.Status == checks.SProblem {
+		color = "\033[31;1m"
+	} else {
+		color = "\033[33;1m"
+	}
+	fmt.Printf("%s[%v]\033[0m \"%v\" - %v\n", color, c.Status, c.Name, c.Summary)
 	if len(c.Problems) > 0 {
 		printProblems(c)
 		printEmptyLine = true
