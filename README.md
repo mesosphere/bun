@@ -28,7 +28,7 @@ $ curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_linu
 ### Windows
 
 1. Download [the command](https://github.com/mesosphere/bun/releases/latest/download/bun_windows_amd64.tar.gz)
-2. Unzip it and move the `bun` binary it to one of the folders in the `PATH`.
+2. Unzip it and move the `bun` binary to one of the folders in the `PATH`.
 
 ### From sources
 
@@ -42,7 +42,7 @@ $ go get github.com/mesosphere/bun
 ## Usage
 
 ```bash
-$ bun - p <path to bundle directory>
+$ bun -p <path to bundle directory>
 ```
 
 or if you working directory is the bundle directory simply:
