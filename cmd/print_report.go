@@ -2,22 +2,37 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"strings"
 
+	"github.com/logrusorgru/aurora"
 	"github.com/mesosphere/bun/v2/checks"
 )
 
-func printReport(c checks.Check) {
-	printEmptyLine := false
-	var color string
-	if c.Status == checks.SOK {
-		color = "\033[32;1m"
-	} else if c.Status == checks.SProblem {
-		color = "\033[31;1m"
-	} else {
-		color = "\033[33;1m"
+var enableColor = true
+
+func init() {
+	info, err := os.Stdout.Stat()
+	if err != nil {
+		log.Println("Cannot detect stdout type")
 	}
-	fmt.Printf("%s[%v]\033[0m \"%v\" - %v\n", color, c.Status, c.Name, c.Summary)
+	enableColor = !info.Mode().IsRegular()
+}
+
+func printReport(c checks.Check) {
+	au := aurora.NewAurora(enableColor)
+	printEmptyLine := false
+	status := "[" + c.Status + "]"
+	if c.Status == checks.SOK {
+		fmt.Print(au.Bold(au.Green(status)))
+	} else if c.Status == checks.SProblem {
+		fmt.Print(au.Bold(au.Red(status)))
+	} else {
+		fmt.Println("undefined")
+		fmt.Print(au.Bold(au.Yellow(status)))
+	}
+	fmt.Printf(" \"%v\" - %v\n", c.Name, c.Summary)
 	if len(c.Problems) > 0 {
 		printProblems(c)
 		printEmptyLine = true
