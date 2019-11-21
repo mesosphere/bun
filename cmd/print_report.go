@@ -17,7 +17,6 @@ func printReport(c checks.Check) {
 	} else if c.Status == checks.SProblem {
 		fmt.Print(au.Bold(au.Red(status)))
 	} else {
-		fmt.Println("undefined")
 		fmt.Print(au.Bold(au.Yellow(status)))
 	}
 	fmt.Printf(" \"%v\" - %v\n", c.Name, c.Summary)
