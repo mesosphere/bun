@@ -36,6 +36,9 @@ func CheckNewRelease() {
 	fmt.Printf("Good news, everyone! New Bun version (v%s) is out, "+
 		"you can read the release notes here: https://github.com/mesosphere/bun/releases/latest\n",
 		latestVersion.String())
+	if outputRedirectedToFile() {
+		return
+	}
 	fmt.Print("Would you like to upgrade to the newer version? [Y/n] ")
 	ok, err := askForConfirmation()
 	if err != nil {

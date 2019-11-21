@@ -2,26 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"log"
-	"os"
 	"strings"
 
 	"github.com/logrusorgru/aurora"
 	"github.com/mesosphere/bun/v2/checks"
 )
 
-var enableColor = true
-
-func init() {
-	info, err := os.Stdout.Stat()
-	if err != nil {
-		log.Println("Cannot detect stdout type")
-	}
-	enableColor = !info.Mode().IsRegular()
-}
-
 func printReport(c checks.Check) {
-	au := aurora.NewAurora(enableColor)
+	au := aurora.NewAurora(!outputRedirectedToFile())
 	printEmptyLine := false
 	status := "[" + c.Status + "]"
 	if c.Status == checks.SOK {
