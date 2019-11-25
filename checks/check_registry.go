@@ -14,8 +14,20 @@ var (
 func RegisterCheck(c Check) {
 	checkRegistryMu.Lock()
 	defer checkRegistryMu.Unlock()
+	if c.Name == "" {
+		panic("bun.checks.RegisterCheck: Check Name should not be empty")
+	}
+	if c.Description == "" {
+		panic("bun.checks.RegisterCheck: Check Description should not be empty")
+	}
 	if _, exists := checkRegistry[c.Name]; exists {
 		panic(fmt.Sprintf("bun.RegisterCheck: called twice for check %v", c.Name))
+	}
+	if c.ProblemSummary == "" {
+		c.ProblemSummary = "Problems were found."
+	}
+	if c.OKSummary == "" {
+		c.OKSummary = "No problems were found."
 	}
 	checkRegistry[c.Name] = c
 }

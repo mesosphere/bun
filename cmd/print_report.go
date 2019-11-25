@@ -2,66 +2,37 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/logrusorgru/aurora"
+
+	"github.com/gosuri/uitable"
 	"github.com/mesosphere/bun/v2/checks"
 )
 
-func printReport(c checks.Check) {
+func printReport(c checks.Check, status checks.Status, summary string, details checks.Details) {
 	au := aurora.NewAurora(!outputRedirectedToFile())
-	printEmptyLine := false
-	status := "[" + c.Status + "]"
-	if c.Status == checks.SOK {
-		fmt.Print(au.Bold(au.Green(status)))
-	} else if c.Status == checks.SProblem {
-		fmt.Print(au.Bold(au.Red(status)))
-	} else {
-		fmt.Print(au.Bold(au.Yellow(status)))
+	var coloredStatus string
+	switch status {
+	case checks.SOK:
+		coloredStatus = au.Bold(au.Green(status)).String()
+	case checks.SProblem:
+		coloredStatus = au.Bold(au.Red(status)).String()
+	default:
+		coloredStatus = au.Bold(au.Yellow(status)).String()
 	}
-	fmt.Printf(" \"%v\" - %v\n", c.Name, c.Summary)
-	if len(c.Problems) > 0 {
-		printProblems(c)
-		printEmptyLine = true
+	if status == checks.SOK && !verbose {
+		return
 	}
-	if len(c.Errors) > 0 {
-		printErrors(c)
-		printEmptyLine = true
+	table := uitable.New()
+	table.MaxColWidth = 180
+	table.Wrap = true // wrap columns
+	table.AddRow("Status", coloredStatus)
+	table.AddRow("Check", c.Name)
+	table.AddRow("Description:", c.Description)
+	table.AddRow("Summary", summary)
+	if status == checks.SProblem {
+		table.AddRow("Cure:", c.Cure)
 	}
-	if verbose {
-		if len(c.OKs) > 0 {
-			fmt.Println("-------")
-			fmt.Println("Details")
-			fmt.Println("-------")
-			fmt.Println(strings.Join(c.OKs, "\n"))
-			printEmptyLine = true
-		}
-	}
-	if printEmptyLine {
-		fmt.Print("\n")
-	}
-}
-
-func printErrors(c checks.Check) {
-	fmt.Println("------")
-	fmt.Println("Errors")
-	fmt.Println("------")
-	fmt.Println(strings.Join(c.Errors, "\n"))
-}
-
-func printProblems(c checks.Check) {
-	fmt.Println("---------------")
-	fmt.Println("Problem details")
-	fmt.Println("---------------")
-	fmt.Println(strings.Join(c.Problems, "\n"))
-	if c.Cure != "" {
-		printCure(c)
-	}
-}
-
-func printCure(c checks.Check) {
-	fmt.Println("----------------------------")
-	fmt.Println("Explanation and possible fix")
-	fmt.Println("----------------------------")
-	fmt.Println(c.Cure)
+	table.AddRow("")
+	fmt.Println(table)
 }

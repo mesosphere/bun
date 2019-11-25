@@ -10,27 +10,42 @@ import (
 
 // Host represents a host in a DC/OS cluster.
 type Host struct {
-	IP string
+	IP IP
 	directory
 }
+
+type IP string
 
 // Bundle describes DC/OS diagnostics bundle.
 type Bundle struct {
-	Hosts        map[string]Host // IP to Host map
-	Masters      map[string]Host
-	Agents       map[string]Host
-	PublicAgents map[string]Host
+	Hosts []Host
 	directory
 }
 
+func (b Bundle) Masters() []Host {
+	return b.filter(DTMaster)
+}
+func (b Bundle) Agents() []Host {
+	return b.filter(DTAgent)
+}
+func (b Bundle) PublicAgents() []Host {
+	return b.filter(DTPublicAgent)
+}
+func (b Bundle) filter(t DirType) (hosts []Host) {
+	hosts = make([]Host, 0, len(b.Hosts))
+	for _, host := range b.Hosts {
+		if host.Type == t {
+			hosts = append(hosts, host)
+		}
+	}
+	return
+}
+
+const hostRegexp = `^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))_(agent_public|agent|master)$`
+
 // NewBundle creates new Bundle
 func NewBundle(path string) (Bundle, error) {
-	b := Bundle{
-		Hosts:        make(map[string]Host),
-		Masters:      make(map[string]Host),
-		Agents:       make(map[string]Host),
-		PublicAgents: make(map[string]Host),
-	}
+	b := Bundle{}
 	var err error
 	b.Type = DTRoot
 	b.Path, err = filepath.Abs(path)
@@ -42,8 +57,7 @@ func NewBundle(path string) (Bundle, error) {
 	if err != nil {
 		return b, err
 	}
-	const restr = `^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))_(agent_public|agent|master)$`
-	re := regexp.MustCompile(restr)
+	re := regexp.MustCompile(hostRegexp)
 	for _, info := range infos {
 		if !info.IsDir() {
 			continue
@@ -52,23 +66,20 @@ func NewBundle(path string) (Bundle, error) {
 		if groups == nil {
 			continue
 		}
-		host := Host{}
-		host.IP = groups[1]
+		var host Host
+		host.IP = IP(groups[1])
 		host.Path = filepath.Join(b.Path, info.Name())
 		switch groups[5] {
 		case "master":
 			host.Type = DTMaster
-			b.Masters[host.IP] = host
 		case "agent":
 			host.Type = DTAgent
-			b.Agents[host.IP] = host
 		case "agent_public":
 			host.Type = DTPublicAgent
-			b.PublicAgents[host.IP] = host
 		default:
 			panic(fmt.Sprintf("Unknown directory type: %v", groups[5]))
 		}
-		b.Hosts[host.IP] = host
+		b.Hosts = append(b.Hosts, host)
 	}
 	return b, nil
 }

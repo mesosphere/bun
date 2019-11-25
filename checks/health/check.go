@@ -1,23 +1,24 @@
 package health
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/mesosphere/bun/v2/bundle"
 	"github.com/mesosphere/bun/v2/checks"
 )
 
 func init() {
-	builder := checks.CheckBuilder{
-		Name:                    "diagnostics-health",
-		Description:             "Check if all DC/OS components are healthy",
+	builder := checks.CheckFuncBuilder{
 		CollectFromMasters:      collect,
 		CollectFromAgents:       collect,
 		CollectFromPublicAgents: collect,
-		Aggregate:               checks.DefaultAggregate,
 	}
-	check := builder.Build()
+	check := checks.Check{
+		Name:           "diagnostics-health",
+		Description:    "Check if all DC/OS components are healthy",
+		Cure:           "Check the logs of the unhealthy component.",
+		OKSummary:      "All components are healthy.",
+		ProblemSummary: "Found unhealthy components.",
+		CheckFunc:      builder.Build(),
+	}
 	checks.RegisterCheck(check)
 }
 
@@ -32,24 +33,27 @@ type Unit struct {
 	Health int
 }
 
-func collect(host bundle.Host) (ok bool, details interface{}, err error) {
+func collect(host bundle.Host) checks.Detail {
 	h := Host{}
-	if err = host.ReadJSON("diagnostics-health", &h); err != nil {
-		return
+	if err := host.ReadJSON("diagnostics-health", &h); err != nil {
+		return checks.Detail{
+			Status: checks.SUndefined,
+			Err:    err,
+		}
 	}
 	var unhealthy []string
 	for _, u := range h.Units {
 		if u.Health != 0 {
-			unhealthy = append(unhealthy,
-				fmt.Sprintf("%v: health = %v", u.ID, u.Health))
+			unhealthy = append(unhealthy, u.ID)
 		}
 	}
 	if len(unhealthy) > 0 {
-		details = fmt.Sprintf("The following components are not healthy:\n%v",
-			strings.Join(unhealthy, "\n"))
-		ok = false
-	} else {
-		ok = true
+		return checks.Detail{
+			Status: checks.SProblem,
+			Value:  unhealthy,
+		}
 	}
-	return
+	return checks.Detail{
+		Status: checks.SOK,
+	}
 }

@@ -1,23 +1,26 @@
 package dcosversion
 
 import (
-	"fmt"
-
 	"github.com/mesosphere/bun/v2/bundle"
 	"github.com/mesosphere/bun/v2/checks"
 )
 
 func init() {
-	builder := checks.CheckBuilder{
-		Name: "dcos-version",
-		Description: "Verify that all hosts in the cluster have the " +
-			"same DC/OS version installed",
+	builder := checks.CheckFuncBuilder{
 		CollectFromMasters:      collect,
 		CollectFromAgents:       collect,
 		CollectFromPublicAgents: collect,
 		Aggregate:               aggregate,
 	}
-	check := builder.Build()
+	check := checks.Check{
+		Name: "dcos-version",
+		Description: "Verify that all hosts in the cluster have the " +
+			"same DC/OS version installed",
+		Cure:           "Upgrade the nodes which have older DC/OS versions.",
+		OKSummary:      "All the nodes have the same DC/OS version.",
+		ProblemSummary: "The nodes have different DC/OS versions installed.",
+		CheckFunc:      builder.Build(),
+	}
 	checks.RegisterCheck(check)
 }
 
@@ -26,38 +29,37 @@ type Version struct {
 	Version string
 }
 
-func collect(host bundle.Host) (ok bool, details interface{}, err error) {
+func collect(host bundle.Host) checks.Detail {
 	v := Version{}
-	if err = host.ReadJSON("dcos-version", &v); err != nil {
-		return
+	if err := host.ReadJSON("dcos-version", &v); err != nil {
+		return checks.Detail{
+			Status: checks.SUndefined,
+			Err:    err,
+		}
 	}
-	details = v.Version
-	ok = true
-	return
+	return checks.Detail{
+		Status: checks.SOK,
+		Value:  v.Version,
+	}
 }
 
-func aggregate(c *checks.Check, b checks.CheckBuilder) {
-	version := ""
-	// Compare versions
-	details := []string{}
+func aggregate(details checks.Details) checks.Details {
 	ok := true
-	for _, r := range b.OKs {
-		v := r.Details.(string)
+	var version string
+	for _, detail := range details {
 		if version == "" {
-			version = v
+			version = detail.Value.(string)
 		}
-		if v != version {
+		if version != detail.Value.(string) {
 			ok = false
+			break
 		}
-		details = append(details, fmt.Sprintf("%v %v has DC/OS version %v",
-			r.Host.Type, r.Host.IP, v))
 	}
-	// No need to interpret problems, as we didn't create it in the host check.
 	if ok {
-		c.OKs = details
-		c.Summary = fmt.Sprintf("All versions are the same: %v.", version)
-	} else {
-		c.Problems = details
-		c.Summary = "Versions are different."
+		return details
 	}
+	for _, d := range details {
+		d.Status = checks.SProblem
+	}
+	return details
 }

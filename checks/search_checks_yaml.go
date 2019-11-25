@@ -31,10 +31,10 @@ const searchChecksYAML = `
   fileTypeName: exhibitor-log
   errorPattern: 'fsync-ing the write ahead log in'
   max: 1
-  cure: Zookeeper fsync threshold exceeded events detected. Zookeeper is swapping or disk IO is saturated. See more here https://jira.mesosphere.com/browse/COPS-4403'
+  cure: 'Zookeeper fsync threshold exceeded events detected. Zookeeper is swapping or disk IO is saturated. See more here https://jira.mesosphere.com/browse/COPS-4403'
 
 - name: cockroach-time-sync
-  descriptions: Detects CockroachDB time sync issues
+  description: Detects CockroachDB time sync issues
   fileTypeName: cockroach-log
   errorPattern: 'fewer than half the known nodes are within the maximum offset'
   cure: CockroachDB logs indicate that there is or was an issue with time sync. Please ensure that time is in sync and CockroachDB is healthy on all Masters
@@ -63,7 +63,7 @@ const searchChecksYAML = `
   cure: 'Mesos agent is using certificates which does not allow to fetch an artifact from some repository. Please see https://jira.mesosphere.com/browse/COPS-2315 and https://jira.mesosphere.com/browse/COPS-2106 for more information.'
 
 - name: overlay-network-recovery
-  descriptions: Checks if the DC/OS overlay network master is in recovery state
+  description: Checks if the DC/OS overlay network master is in recovery state
   fileTypeName: mesos-master-log
   errorPattern: 'overlay-master in.*RECOVERING.*state'
   isErrorPatternRegexp: true

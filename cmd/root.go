@@ -49,8 +49,8 @@ func init() {
 	for _, c := range checks.Checks() {
 		run := func(cmd *cobra.Command, args []string) {
 			check := checks.GetCheck(cmd.Use)
-			check.Run(*currentBundle)
-			printReport(check)
+			status, summary, details := check.Run(*currentBundle)
+			printReport(check, status, summary, details)
 			return
 		}
 		var cmd = &cobra.Command{
@@ -90,8 +90,8 @@ func runCheck(cmd *cobra.Command, args []string) {
 		return checks[i].Name < checks[j].Name
 	})
 	for _, check := range checks {
-		check.Run(*currentBundle)
-		printReport(check)
+		status, summary, details := check.Run(*currentBundle)
+		printReport(check, status, summary, details)
 	}
 }
 

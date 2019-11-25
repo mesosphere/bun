@@ -2,7 +2,6 @@ package actormailboxes
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/mesosphere/bun/v2/bundle"
 	"github.com/mesosphere/bun/v2/checks"
@@ -13,44 +12,51 @@ import (
 const maxEvents = 30
 
 func init() {
-	builder := checks.CheckBuilder{
-		Name: "mesos-actor-mailboxes",
-		Description: "Check if actor mailboxes in the Mesos process " +
-			"have a reasonable amount of messages",
-		OKSummary:               "All Mesos actors are fine.",
-		ProblemSummary:          "Some Mesos actors are backlogged.",
+	builder := checks.CheckFuncBuilder{
 		CollectFromMasters:      collect,
 		CollectFromAgents:       collect,
 		CollectFromPublicAgents: collect,
-		Aggregate:               checks.DefaultAggregate,
 	}
-	check := builder.Build()
+	check := checks.Check{
+		Name: "mesos-actor-mailboxes",
+		Description: "Check if actor mailboxes in the Mesos process " +
+			"have a reasonable amount of messages",
+		Cure: "Check I/O on the correspondent hosts and if something is overloading Mesos agents or masters" +
+			" with API calls.",
+		OKSummary:      "All Mesos actors are fine.",
+		ProblemSummary: "Some Mesos actors are backlogged.",
+		CheckFunc:      builder.Build(),
+	}
 	checks.RegisterCheck(check)
 }
 
-// MesosActor represents the structure of the __processess__ file.
 type MesosActor struct {
 	ID     string `json:"id"`
 	Events []struct{}
 }
 
-func collect(host bundle.Host) (ok bool, details interface{}, err error) {
+func collect(host bundle.Host) checks.Detail {
 	var actors []MesosActor
-	if err = host.ReadJSON("mesos-processes", &actors); err != nil {
-		return
+	if err := host.ReadJSON("mesos-processes", &actors); err != nil {
+		return checks.Detail{
+			Status: checks.SUndefined,
+			Err:    err,
+		}
 	}
-	var u []string
+	var mailboxes []string
 	for _, a := range actors {
 		if len(a.Events) > maxEvents {
-			u = append(u, fmt.Sprintf("(Mesos) %v@%v: mailbox size = %v (> %v)",
+			mailboxes = append(mailboxes, fmt.Sprintf("(Mesos) %v@%v: mailbox size = %v (> %v)",
 				a.ID, host.IP, len(a.Events), maxEvents))
 		}
 	}
-	if len(u) > 0 {
-		details = "The following Mesos actor mailboxes are too big:\n" +
-			strings.Join(u, "\n")
-		return
+	if len(mailboxes) > 0 {
+		return checks.Detail{
+			Status: checks.SProblem,
+			Value:  mailboxes,
+		}
 	}
-	ok = true
-	return
+	return checks.Detail{
+		Status: checks.SOK,
+	}
 }

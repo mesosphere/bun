@@ -53,25 +53,32 @@ type ipResults struct {
 }
 
 func init() {
-	builder := checks.CheckBuilder{
-		Name:                    "mesos-9868",
-		Description:             "Check if the cluster is affected by the MESOS-9868 bug",
+	builder := checks.CheckFuncBuilder{
 		CollectFromMasters:      collectMasters,
 		CollectFromAgents:       collectAgents,
 		CollectFromPublicAgents: collectAgents,
 		Aggregate:               aggregate,
 	}
-	check := builder.Build()
+	check := checks.Check{
+		Name:           "mesos-9868",
+		Description:    "Check if the cluster is affected by the MESOS-9868 bug",
+		Cure:           "Please, see https://issues.apache.org/jira/browse/MESOS-9868 for details.",
+		OKSummary:      "The cluster is not affected by the MESOS-9868 bug.",
+		ProblemSummary: "The cluster is affected by the MESOS-9868 bug.",
+		CheckFunc:      builder.Build(),
+	}
 	checks.RegisterCheck(check)
 }
 
-func collectMasters(host bundle.Host) (ok bool, details interface{}, err error) {
+func collectMasters(host bundle.Host) checks.Detail {
 	var mesosState mesosState
-	ok = true
-	err = host.ReadJSON("mesos-master-state", &mesosState)
-	if err != nil {
-		err = fmt.Errorf("unable to parse: %s", err.Error())
-		return
+
+	if err := host.ReadJSON("mesos-master-state", &mesosState); err != nil {
+		err = fmt.Errorf("unable to parse: %v", err)
+		return checks.Detail{
+			Status: checks.SUndefined,
+			Err:    err,
+		}
 	}
 	summary := make(map[string]ipResults)
 	for _, fw := range mesosState.Frameworks {
@@ -83,8 +90,11 @@ func collectMasters(host bundle.Host) (ok bool, details interface{}, err error) 
 				}
 			}
 			if lastStatus == nil {
-				err = fmt.Errorf("no statuses found for task %s", t.Name)
-				return
+				err := fmt.Errorf("no statuses found for task %s", t.Name)
+				return checks.Detail{
+					Status: checks.SUndefined,
+					Err:    err,
+				}
 			}
 			var ips ipResults
 			id := lastStatus.ContainerStatus.ContainerID.Value
@@ -101,17 +111,20 @@ func collectMasters(host bundle.Host) (ok bool, details interface{}, err error) 
 			}
 		}
 	}
-	details = summary
-	return
+	return checks.Detail{
+		Value: summary,
+	}
 }
 
-func collectAgents(host bundle.Host) (ok bool, details interface{}, err error) {
+func collectAgents(host bundle.Host) checks.Detail {
 	var mesosContainers []mesosContainer
-	ok = true
-	err = host.ReadJSON("mesos-agent-containers", &mesosContainers)
-	if err != nil {
+
+	if err := host.ReadJSON("mesos-agent-containers", &mesosContainers); err != nil {
 		err = fmt.Errorf("unable to parse: %s", err.Error())
-		return
+		return checks.Detail{
+			Status: checks.SUndefined,
+			Err:    err,
+		}
 	}
 	summary := make(map[string]ipResults)
 	for _, c := range mesosContainers {
@@ -123,23 +136,32 @@ func collectAgents(host bundle.Host) (ok bool, details interface{}, err error) {
 		}
 		summary[c.ContainerID] = ips
 	}
-	details = summary
-	return
+	return checks.Detail{
+		Value: summary,
+	}
 }
 
-func aggregate(c *checks.Check, b checks.CheckBuilder) {
-	var oks []string
-	var problems []string
+func aggregate(details checks.Details) checks.Details {
 	// Collect all the ipResults from tasks and containers
 	summary := make(map[string]ipResults)
-	for _, r := range b.OKs {
-		for container, ips := range r.Details.(map[string]ipResults) {
+	errs := make([]checks.Detail, 0, len(details))
+	for _, d := range details {
+		if d.Err != nil {
+			errs = append(errs, checks.Detail{
+				Status: checks.SUndefined,
+				Err:    d.Err,
+			})
+			continue
+		}
+		for container, ips := range d.Value.(map[string]ipResults) {
 			v := summary[container]
 			v.TaskIPs = append(v.TaskIPs, ips.TaskIPs...)
 			v.ContainerIPs = append(v.ContainerIPs, ips.ContainerIPs...)
 			summary[container] = v
 		}
 	}
+	results := make([]checks.Detail, 0, len(summary))
+	results = append(results, errs...)
 	// See if they do not match
 	for container, ips := range summary {
 		// Ignore case where we weren't able to detect
@@ -154,28 +176,24 @@ func aggregate(c *checks.Check, b checks.CheckBuilder) {
 					break
 				}
 			}
-
 			if !found {
 				sort.Strings(ips.ContainerIPs)
-				problems = append(problems,
-					fmt.Sprintf("Container %s: IP %s from Mesos master \"/state\" endpoint "+
-						"does not match any IP from Mesos agent \"/containers\" endpoint: %s.",
-						container, tip, strings.Join(ips.ContainerIPs, ", ")))
+				results = append(results,
+					checks.Detail{
+						Status: checks.SProblem,
+						Value: fmt.Sprintf("Container %s: IP %s from Mesos master \"/state\" endpoint "+
+							"does not match any IP from Mesos agent \"/containers\" endpoint: %s.",
+							container, tip, strings.Join(ips.ContainerIPs, ", "))})
 				break
 			}
 		}
-
 		if found {
-			oks = append(oks, "Container %s ipResults match", container)
+			results = append(results,
+				checks.Detail{
+					Status: checks.SOK,
+					Value:  fmt.Sprintf("Container %s ipResults match", container),
+				})
 		}
 	}
-
-	if len(problems) > 0 {
-		c.Summary = fmt.Sprintf("%d containers affected by MESOS-9868", len(problems))
-	} else if len(c.Errors) > 0 {
-		c.Summary = "Errors occurred during the check."
-	}
-
-	c.Problems = problems
-	c.OKs = oks
+	return results
 }

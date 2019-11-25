@@ -14,6 +14,10 @@ const (
 	SProblem = "PROBLEM"
 )
 
+// MsgErr is a standard message used in the check summary when errors
+// occurs during the check.
+const MsgErr = "Error(s) occurred while performing the check."
+
 // cluster analyzing its diagnostics bundle. Check supposed to populate fields
 // of the CheckResult.
 // Each check should implement this interface.
@@ -23,18 +27,61 @@ const (
 // Checks can be registered in the check registry with the registerCheck function.
 // Check is not supposed to be run more than one time.
 type Check struct {
-	Name        string                      // Required
-	Description string                      // Optional
-	Cure        string                      // Optional
-	CheckFunc   func(*Check, bundle.Bundle) // Required
-	Status      Status                      // Do not set
-	Summary     string                      // Do not set
-	Problems    []string                    // Do not set
-	Errors      []string                    // Do not set
-	OKs         []string                    // Do not set
+	Name           string    `yaml:"name"`           // Required
+	Description    string    `yaml:"description"`    // Required
+	Cure           string    `yaml:"cure"`           // Required
+	OKSummary      string    `yaml:"okSummary"`      // Optional
+	ProblemSummary string    `yaml:"problemSummary"` // Optional
+	CheckFunc      CheckFunc // Required
+}
+
+type CheckFunc func(bundle.Bundle) Details
+
+type Detail struct {
+	Status Status
+	Value  interface{}
+	Host   *bundle.Host
+	Err    error
+}
+
+type Details []Detail
+
+func (d Details) filter(status Status) Details {
+	details := make([]Detail, 0, len(d))
+	for _, detail := range d {
+		if detail.Status == status {
+			details = append(details, detail)
+		}
+	}
+	return details
+}
+
+func (d Details) Problems() Details {
+	return d.filter(SProblem)
+}
+
+func (d Details) Failures() Details {
+	return d.filter(SUndefined)
+}
+
+func (d Details) OKs() Details {
+	return d.filter(SOK)
 }
 
 // Run runs the check.
-func (c *Check) Run(b bundle.Bundle) {
-	c.CheckFunc(c, b)
+func (c *Check) Run(b bundle.Bundle) (status Status, summary string, details Details) {
+	details = c.CheckFunc(b)
+	if len(details.Problems()) > 0 {
+		status = SProblem
+		summary = c.ProblemSummary
+		return
+	}
+	if len(details.Failures()) > 0 {
+		status = SUndefined
+		summary = MsgErr
+		return
+	}
+	summary = c.OKSummary
+	status = SOK
+	return
 }

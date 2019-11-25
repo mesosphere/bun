@@ -1,8 +1,6 @@
 package deployments
 
 import (
-	"fmt"
-
 	"github.com/mesosphere/bun/v2/bundle"
 	"github.com/mesosphere/bun/v2/checks"
 )
@@ -11,25 +9,47 @@ import (
 const maxDeployments = 10
 
 func init() {
-	builder := checks.CheckBuilder{
-		Name:               "marathon-deployments",
-		Description:        "Check for too many running Marathon app deployments",
-		CollectFromMasters: collect,
-		Aggregate:          checks.DefaultAggregate,
+	check := checks.Check{
+		Name:           "marathon-deployments",
+		Description:    "Check for too many running Marathon app deployments",
+		Cure:           "Too many deployments can mean that the cluster lost resources during some incident.",
+		OKSummary:      "Marathon has less than 10 deployments.",
+		ProblemSummary: "Marathon has more than 10 deployments.",
+		CheckFunc:      checkFunc,
 	}
-	check := builder.Build()
 	checks.RegisterCheck(check)
 }
 
-func collect(host bundle.Host) (ok bool, details interface{}, err error) {
-	deployments := []struct{}{}
-	if err = host.ReadJSON("marathon-deployments", &deployments); err != nil {
-		return
+func checkFunc(b bundle.Bundle) checks.Details {
+	deployments := make([]struct{}, 0)
+	if len(b.Masters()) == 0 {
+		return checks.Details{checks.Detail{
+			Status: checks.SUndefined,
+			Value:  "Cannot find DC/OS masters to perform the check",
+		}}
+	}
+
+	master := b.Masters()[0]
+	if err := master.ReadJSON("marathon-deployments", &deployments); err != nil {
+		return checks.Details{
+			{
+				Status: checks.SUndefined,
+				Err:    err,
+			},
+		}
 	}
 	if len(deployments) > maxDeployments {
-		details = fmt.Sprintf("Too many deployments: %v", len(deployments))
-		return
+		return checks.Details{
+			checks.Detail{
+				Status: checks.SProblem,
+				Value:  len(deployments),
+			},
+		}
 	}
-	ok = true
-	return
+	return checks.Details{
+		checks.Detail{
+			Status: checks.SOK,
+			Value:  len(deployments),
+		},
+	}
 }

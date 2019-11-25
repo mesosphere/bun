@@ -11,7 +11,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"regexp"
 	"strings"
 )
 
@@ -139,40 +138,45 @@ func (d directory) ReadJSON(typeName FileTypeName, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
 
-type SearchRequest struct {
-	PatternS string
-	PatternR *regexp.Regexp
-	F        func(line string, n int) bool
-}
-
 func (d directory) ScanLines(t FileTypeName, f func(n int, line string) bool) error {
 	file, err := d.OpenFile(t)
 	if err != nil {
 		return err
 	}
-	defer func() {
+	close := func() error {
 		if err := file.Close(); err != nil {
-			log.Printf("bun.directory.FindLine: Cannot close file %v with error: %v",
+			e := fmt.Sprintf("bun.directory.FindLine: Cannot close file %v with error: %v",
 				file.Name(), err)
 			if strings.HasSuffix(file.Name(), ".gz") {
-				log.Printf("The .gz file might be corrupted. Try to fix it with"+
+				e += fmt.Sprintf("The .gz file might be corrupted. Try to fix it with"+
 					" the gzrecover command and run the check again:\n"+
 					"1) brew install gzrt\n"+
 					"2) gzrecover -o %v %v", strings.TrimSuffix(file.Name(), ".gz"),
 					file.Name())
 			}
+			return fmt.Errorf(e)
 		}
-	}()
+		return nil
+	}
 	scanner := bufio.NewScanner(file)
 	for i := 1; scanner.Scan(); i++ {
 		line := scanner.Text()
 		if f(i, line) {
+			if err = close(); err != nil {
+				return err
+			}
 			return nil
 		}
 	}
 	if err = scanner.Err(); err != nil {
+		if err = close(); err != nil {
+			return err
+		}
 		return err
 	}
 	// Not found
+	if err = close(); err != nil {
+		return err
+	}
 	return nil
 }

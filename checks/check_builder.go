@@ -1,140 +1,60 @@
 package checks
 
 import (
-	"fmt"
-
 	"github.com/mesosphere/bun/v2/bundle"
 )
 
-const errName = "bun.CheckBuilder.Build: Check Name should not be empty"
-const errForEach = "bun.CheckBuilder.Build: At least one of the ForEach functions" +
-	"should be specified"
+// CheckHost checks an individual host.
+type CheckHost func(bundle.Host) Detail
 
-// MsgErr is a standard message used in the check summary when errors
-// occurs during the check.
-const MsgErr = "Error(s) occurred while performing the check."
+// Aggregate aggregates heck results.
+type Aggregate func(details Details) Details
 
-// CheckHost checks an individual host. It returns status, details, and error if
-// the function cannot perform a check. If the returned error is not nil, then
-// the status is ignored.
-type CheckHost func(bundle.Host) (bool, interface{}, error)
-
-// Aggregate check reults.
-type Aggregate func(*Check, CheckBuilder)
-
-// Result hols results of the CheckHost function.
-type Result struct {
-	Host    bundle.Host
-	OK      bool
-	Details interface{}
-	Err     error
-}
-
-// CheckBuilder helps to create checks.
-type CheckBuilder struct {
-	Name                    string    // Required
-	Description             string    // Optional
-	Cure                    string    // Optional
+// CheckFuncBuilder helps to create map/reduce-like checks.
+type CheckFuncBuilder struct {
 	CollectFromMasters      CheckHost // At least one of
 	CollectFromAgents       CheckHost // the Collect... functions
 	CollectFromPublicAgents CheckHost // are required
-	ProblemSummary          string    // Optional
-	OKSummary               string    // Optional
 	Aggregate               Aggregate // Implement if the default is not sufficient
-	Problems                []Result  // Do not set
-	OKs                     []Result  // Do not set
 }
 
-// Build returns a Check
-func (b *CheckBuilder) Build() Check {
-	if b.Name == "" {
-		panic(errName)
+// Build returns a check function CheckFunc.Check
+func (b *CheckFuncBuilder) Build() CheckFunc {
+	if b.Aggregate == nil {
+		b.Aggregate = DefaultAggregate
 	}
 	if b.CollectFromMasters == nil && b.CollectFromAgents == nil &&
 		b.CollectFromPublicAgents == nil {
-		panic(errForEach)
+		panic("bun.CheckFuncBuilder.Build: At least one of the ForEach functions" +
+			"should be specified")
 	}
-	if b.ProblemSummary == "" {
-		b.ProblemSummary = "Problems were found."
-	}
-	if b.OKSummary == "" {
-		b.OKSummary = "No problems were found."
-	}
-	if b.Aggregate == nil {
-		panic("CheckBuilder.Aggregate should be set.")
-	}
-	return Check{
-		Name:        b.Name,
-		Description: b.Description,
-		Cure:        b.Cure,
-		CheckFunc:   b.checkFunc,
-	}
-}
-
-func formatMsg(h bundle.Host, msg string) string {
-	return fmt.Sprintf("%v %v: %v", h.Type, h.IP, msg)
+	return b.checkFunc
 }
 
 // Default implementation of the Aggregate function.
-// It assumes that the implementations of the CheckHost function return
-// Result Details as a string or nil.
-func DefaultAggregate(c *Check, b CheckBuilder) {
-	for _, r := range b.Problems {
-		if r.Details != nil {
-			c.Problems = append(c.Problems, formatMsg(r.Host, r.Details.(string)))
-		}
-	}
-	for _, r := range b.OKs {
-		if r.Details != nil {
-			c.OKs = append(c.OKs, formatMsg(r.Host, r.Details.(string)))
-		}
-	}
+func DefaultAggregate(details Details) Details {
+	return details
 }
 
-func (b *CheckBuilder) checkHosts(c *Check, h map[string]bundle.Host, ch CheckHost) {
+func (b *CheckFuncBuilder) checkHosts(h []bundle.Host, ch CheckHost, details *Details) {
 	for _, host := range h {
-		r := Result{}
-		r.Host = host
-		r.OK, r.Details, r.Err = ch(host)
-		if r.Err != nil {
-			c.Errors = append(c.Errors, formatMsg(r.Host, r.Err.Error()))
-		} else if r.OK {
-			b.OKs = append(b.OKs, r)
-		} else {
-			b.Problems = append(b.Problems, r)
-		}
+		detail := ch(host)
+		detail.Host = &host
+		*details = append(*details, detail)
 	}
 }
 
 // Implementation of the Check.CheckFunc
-func (b *CheckBuilder) checkFunc(c *Check, bundle bundle.Bundle) {
+func (b *CheckFuncBuilder) checkFunc(bundle bundle.Bundle) (details Details) {
+	details = make([]Detail, 0, len(bundle.Hosts))
 	if b.CollectFromMasters != nil {
-		b.checkHosts(c, bundle.Masters, b.CollectFromMasters)
+		b.checkHosts(bundle.Masters(), b.CollectFromMasters, &details)
 	}
 	if b.CollectFromAgents != nil {
-		b.checkHosts(c, bundle.Agents, b.CollectFromAgents)
+		b.checkHosts(bundle.Agents(), b.CollectFromAgents, &details)
 	}
 	if b.CollectFromPublicAgents != nil {
-		b.checkHosts(c, bundle.PublicAgents, b.CollectFromPublicAgents)
+		b.checkHosts(bundle.PublicAgents(), b.CollectFromPublicAgents, &details)
 	}
-	b.Aggregate(c, *b)
-	if len(c.Problems) > 0 {
-		c.Status = SProblem
-		if c.Summary == "" {
-			c.Summary = b.ProblemSummary
-		}
-		if len(c.Errors) > 0 {
-			c.Summary += " " + MsgErr
-		}
-	} else if len(c.Errors) == 0 {
-		c.Status = SOK
-		if c.Summary == "" {
-			c.Summary = b.OKSummary
-		}
-	} else {
-		c.Status = SUndefined
-		if c.Summary == "" {
-			c.Summary = MsgErr
-		}
-	}
+	return b.Aggregate(details)
 }

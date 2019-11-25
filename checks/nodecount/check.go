@@ -9,25 +9,27 @@ import (
 
 func init() {
 	check := checks.Check{
-		Name: "node-count",
-		Description: "Count nodes of each type, checks if the amount of " +
-			"master nodes is odd",
-		CheckFunc: checkFunc,
+		Name:           "node-count",
+		Description:    "Checks if the cluster has 3 or 5 masters and more than 0 nodes.",
+		Cure:           "Check Mesos logs of the disconnected masters and agents.",
+		OKSummary:      "Cluster has correct amount of masters and more than 0 agents.",
+		ProblemSummary: "Cluster doesn't have correct amount of masters or agents.",
+		CheckFunc:      checkFunc,
 	}
 	checks.RegisterCheck(check)
 }
 
-func checkFunc(c *checks.Check, b bundle.Bundle) {
-	lenMasters := len(b.Masters)
-	stats := fmt.Sprintf(
-		"Masters: %v, Agents: %v, Public Agents: %v, Total: %v",
-		lenMasters, len(b.Agents), len(b.PublicAgents), len(b.Hosts))
-	if lenMasters == 1 || lenMasters == 3 || lenMasters == 5 {
-		c.Status = checks.SOK
-		c.Summary = stats
-		return
+func checkFunc(b bundle.Bundle) checks.Details {
+	nMasters := len(b.Masters())
+	nAgents := len(b.Agents()) + len(b.PublicAgents())
+	if (nMasters == 3 || nMasters == 5) && nAgents != 0 {
+		return []checks.Detail{{Status: checks.SOK}}
 	}
-	c.Status = checks.SProblem
-	c.Summary = fmt.Sprintf("Number of masters is not valid. %v", stats)
-	c.Problems = append(c.Problems, "It should be 1, 3 or 5 masters.")
+	return []checks.Detail{
+		{
+			Status: checks.SProblem,
+			Value: fmt.Sprintf("Expected 3 or 5 masters and more than 0 agents, observe %v masters and %v agents.",
+				nMasters, nAgents),
+		},
+	}
 }
