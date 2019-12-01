@@ -146,10 +146,6 @@ $ curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_linu
 ```bash
 $ go get github.com/mesosphere/bun
 ```
-## Update
-
-Bun checks for its new versions and updates itself automatically with your permission.
-
 ## Usage
 
 ```bash
@@ -167,6 +163,10 @@ Please, launch the following command to learn more:
 ```
 $ bun --help
 ```
+
+## Update
+
+Bun checks for its new versions and updates itself automatically with your permission.
 
 ## How to contribute
 
