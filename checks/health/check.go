@@ -7,17 +7,17 @@ import (
 
 func init() {
 	builder := checks.CheckFuncBuilder{
-		CollectFromMasters:      collect,
-		CollectFromAgents:       collect,
-		CollectFromPublicAgents: collect,
+		CheckMasters:      collect,
+		CheckAgents:       collect,
+		CheckPublicAgents: collect,
 	}
 	check := checks.Check{
-		Name:           "diagnostics-health",
-		Description:    "Check if all DC/OS components are healthy",
+		Name:           "health",
+		Description:    "Checks if all DC/OS components are healthy",
 		Cure:           "Check the logs of the unhealthy component.",
 		OKSummary:      "All components are healthy.",
 		ProblemSummary: "Found unhealthy components.",
-		CheckFunc:      builder.Build(),
+		Run:            builder.Build(),
 	}
 	checks.RegisterCheck(check)
 }
@@ -33,12 +33,12 @@ type Unit struct {
 	Health int
 }
 
-func collect(host bundle.Host) checks.Detail {
+func collect(host bundle.Host) checks.Result {
 	h := Host{}
 	if err := host.ReadJSON("diagnostics-health", &h); err != nil {
-		return checks.Detail{
+		return checks.Result{
 			Status: checks.SUndefined,
-			Err:    err,
+			Value:  err,
 		}
 	}
 	var unhealthy []string
@@ -48,12 +48,12 @@ func collect(host bundle.Host) checks.Detail {
 		}
 	}
 	if len(unhealthy) > 0 {
-		return checks.Detail{
+		return checks.Result{
 			Status: checks.SProblem,
 			Value:  unhealthy,
 		}
 	}
-	return checks.Detail{
+	return checks.Result{
 		Status: checks.SOK,
 	}
 }

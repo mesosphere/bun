@@ -8,19 +8,19 @@ const searchChecksYAML = `
   cure: Please, refer to the KB article https://support.d2iq.com/s/article/DC-OS-Impacted-by-a-Mesos-Agent-Garbage-Collection-Issue and MESOS-8830 
 
 - name: exhibitor-disk-space
-  description: Check disk space errors in Exhibitor logs
+  description: Checks for disk space errors in Exhibitor logs
   fileTypeName: exhibitor-log
   errorPattern: 'No space left on device'
   cure: Please check that there is sufficient free space on the disk.
 
 - name: migration-in-progress
-  description: Detect marathon-upgrade-in-progress flag on failed cluster after upgrade
+  description: Detects marathon-upgrade-in-progress flag on failed cluster after upgrade
   fileTypeName: marathon
   errorPattern: 'Migration Failed: Migration is already in progress'
   cure: Please refer to the KB article https://support.d2iq.com/s/article/marathon-migration-in-progress-error
 
 - name: networking-errors
-  description: Identify errors in dcos-net logs
+  description: Identifies errors in dcos-net logs
   fileTypeName: net-log
   errorPattern: '\[(?P<Level>error|emergency|critical|alert)\]'
   isErrorPatternRegexp: true
@@ -40,7 +40,7 @@ const searchChecksYAML = `
   cure: CockroachDB logs indicate that there is or was an issue with time sync. Please ensure that time is in sync and CockroachDB is healthy on all Masters
 
 - name: time-sync
-  description: Checks if time is syncronized on the host machine.
+  description: Checks if time is synchronised on the host machine.
   fileTypeName: net-log
   errorPattern: '(internal consistency is broken|Unable to determine clock sync|Time is not synchronized|Clock is less stable than allowed|Clock is out of sync)'
   isErrorPatternRegexp: true
@@ -75,7 +75,6 @@ const searchChecksYAML = `
   description: Detects kernel memory (kmem) errors in dmesg log
   fileTypeName: dmesg-log
   errorPattern: 'SLUB: Unable to allocate memory on node -1'
-  isErrorPatternRegexp: true
   cure: 'Please see KB articles https://support.mesosphere.com/s/article/Critical-Issue-KMEM-MSPH-2018-0006 and https://support.mesosphere.com/s/article/Known-Issue-KMEM-with-Kubernetes-MSPH-2019-0002' 
 
 - name: oom-kills

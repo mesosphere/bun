@@ -74,7 +74,7 @@ Kudos to the first contributors!
 ### Enhancements
 
 * Introducing proper CLI support and the first command, `bun check`. Please, 
-  try `bun --help` for details. 
+  try `bun --help` for results. 
 
 ---
 

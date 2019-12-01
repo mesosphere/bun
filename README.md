@@ -3,6 +3,114 @@
 Command-line program which detects the most common problems in a DC/OS cluster
 by analyzing its [diagnostics bundle](https://docs.mesosphere.com/1.11/cli/command-reference/dcos-node/dcos-node-diagnostics-create/).
 
+```
+$ bun
++-------------+----------------------------------------------------------+
+| Check       | docker-not-running                                       |
++-------------+----------------------------------------------------------+
+| Status      | [UNDEFINED]                                              |
++-------------+----------------------------------------------------------+
+| Description | Checks if docker is running                              |
++-------------+----------------------------------------------------------+
+| Summary     | Couldn't check any hosts because of the error(s). Launch |
+|             | this check with the -v flag to see the details.          |
++-------------+----------------------------------------------------------+
+
++-------------+----------------------------------------------------------+
+| Check       | firewalld-running                                        |
++-------------+----------------------------------------------------------+
+| Status      | [UNDEFINED]                                              |
++-------------+----------------------------------------------------------+
+| Description | Detects if firewalld is running on a DC/OS node          |
++-------------+----------------------------------------------------------+
+| Summary     | Couldn't check any hosts because of the error(s). Launch |
+|             | this check with the -v flag to see the details.          |
++-------------+----------------------------------------------------------+
+
++------------------------+-----------------------------------------------------------+
+| Check                  | mesos-agent-invalid-cert                                  |
++------------------------+-----------------------------------------------------------+
+| Status                 | [PROBLEM]                                                 |
++------------------------+-----------------------------------------------------------+
+| Description            | Checks if there are errors for invalid certificate when   |
+|                        | fetching artifacts                                        |
++------------------------+-----------------------------------------------------------+
+| Cure                   | Mesos agent is using certificates which does not allow to |
+|                        | fetch an artifact from some repository. Please see        |
+|                        | https://jira.mesosphere.com/browse/COPS-2315 and          |
+|                        | https://jira.mesosphere.com/browse/COPS-2106 for more     |
+|                        | information.                                              |
++------------------------+-----------------------------------------------------------+
+| Summary                | Error pattern "Container.*Failed to perform 'curl'.*SSL   |
+|                        | certificate problem: self signed certificate" found.      |
++------------------------+-----------------------------------------------------------+
+| [P] agent 10.10.10.105 | Error pattern occurred 10 time(s) in file                 |
+|                        | dcos-mesos-slave.service.gz                               |
++------------------------+-----------------------------------------------------------+
+| [P] agent 10.10.10.104 | Error pattern occurred 1 time(s) in file                  |
+|                        | dcos-mesos-slave.service.gz                               |
++------------------------+-----------------------------------------------------------+
+
++------------------------+--------------------------------------------------------------+
+| Check                  | networking-errors                                            |
++------------------------+--------------------------------------------------------------+
+| Status                 | [PROBLEM]                                                    |
++------------------------+--------------------------------------------------------------+
+| Description            | Identifies errors in dcos-net logs                           |
++------------------------+--------------------------------------------------------------+
+| Cure                   | Please, collect the crash dumps with "sudo tar -czvf         |
+|                        | 172.29.108.26_master_dcos_net.tgz -C                         |
+|                        | /opt/mesosphere/active/dcos-net/ ." and contact the          |
+|                        | networking team.                                             |
++------------------------+--------------------------------------------------------------+
+| Summary                | Error pattern                                                |
+|                        | "\[(?P<Level>error|emergency|critical|alert)\]" found.       |
++------------------------+--------------------------------------------------------------+
+| [P] agent 10.10.10.105 | Error pattern occurred 1 time(s) in file dcos-net.service.gz |
++------------------------+--------------------------------------------------------------+
+
++-------------+-------------------------------------------------------------+
+| Check       | nscd-running                                                |
++-------------+-------------------------------------------------------------+
+| Status      | [UNDEFINED]                                                 |
++-------------+-------------------------------------------------------------+
+| Description | Detects if Name Service Cache Daemon (nscd) is running on a |
+|             | DC/OS node                                                  |
++-------------+-------------------------------------------------------------+
+| Summary     | Couldn't check any hosts because of the error(s). Launch    |
+|             | this check with the -v flag to see the details.             |
++-------------+-------------------------------------------------------------+
+
++------------------------+------------------------------------------------------------+
+| Check                  | oom-kills                                                  |
++------------------------+------------------------------------------------------------+
+| Status                 | [PROBLEM]                                                  |
++------------------------+------------------------------------------------------------+
+| Description            | Detects out of memory kills in dmesg log                   |
++------------------------+------------------------------------------------------------+
+| Cure                   | The operating system is killing processes which exceed     |
+|                        | system or container memory limits. Please check which      |
+|                        | processes are getting killed. If it is a DC/OS container,  |
+|                        | increase its memory limit.                                 |
++------------------------+------------------------------------------------------------+
+| Summary                | Error pattern "invoked oom-killer" found.                  |
++------------------------+------------------------------------------------------------+
+| [P] agent 10.10.10.104 | Error pattern occurred 3 time(s) in file dmesg-0.output.gz |
++------------------------+------------------------------------------------------------+
+| [P] agent 10.10.10.105 | Error pattern occurred 2 time(s) in file dmesg-0.output.gz |
++------------------------+------------------------------------------------------------+
+
++-----------+----+
+|  SUMMARY  |    |
++-----------+----+
+| Failed    |  3 |
+| Undefined |  3 |
+| Passed    | 16 |
++-----------+----+
+|   TOTAL   | 22 |
++-----------+----+
+```
+
 ## Installation
 
 ### macOS
@@ -38,6 +146,9 @@ $ curl -O -L https://github.com/mesosphere/bun/releases/latest/download/bun_linu
 ```bash
 $ go get github.com/mesosphere/bun
 ```
+## Update
+
+Bun checks for its new versions and update itself automatically with your permission.
 
 ## Usage
 
@@ -49,34 +160,6 @@ or if you working directory is the bundle directory simply:
 
 ```bash
 $ bun
-```
-
-
-The output should look like that:
-
-```
-[PROBLEM] "dcos-version" - Versions are different.
----------------
-Problem details
----------------
-master 172.20.0.23 has DC/OS version 1.11.0
-master 172.20.0.24 has DC/OS version 1.11.0
-agent 172.20.0.27 has DC/OS version 1.11.0
-agent 172.20.0.28 has DC/OS version 1.11.0
-agent 172.20.0.29 has DC/OS version 1.11.0
-agent 172.20.0.21 has DC/OS version 1.10.1
-agent 172.20.0.25 has DC/OS version 1.11.0
-public agent 172.20.0.26 has DC/OS version 1.11.0
-
-[PROBLEM] "health" - Problems were found.
----------------
-Problem details
----------------
-agent 172.20.0.21: The following components are not healthy:
-dcos-docker-gc.service: health = 1
-
-[OK] "mesos-actor-mailboxes" - All Mesos actors are fine.
-[OK] "node-count" - Masters: 3, Agents: 5, Public Agents: 1, Total: 9
 ```
 
 Please, launch the following command to learn more:
@@ -91,7 +174,7 @@ Please, report bugs and share your ideas for new features via the [issue page](h
 
 The project is written in Go; please, use [the latest version](https://golang.org/dl/) of the compiler.
 
-To add a new feature or fix a bug, simply
+To add a new feature or fix a bug, clone the repository:
 `git clone https://github.com/mesosphere/bun.git` and use your favorite
 editor or IDE.
 
@@ -102,146 +185,134 @@ $ go build
 $ ./go -p <path to a bundle directory>
 ```
 
+### Bundle files
+
+Names of DC/OS diagnostics bundle files may vary from one version of DC/OS to another, moreover, they are not always
+descriptive or handy. That is why in Bun we give each file a human-readable self-explanatory ID and use these IDs
+to refer to the bundle files. File `files_type_yaml.go` contains description of bundle files.
+
 ### How to add new checks
 
-Each check uses one or more bundle files. Please, refer to the `filetypes/files_type_yaml.go`
-file to find out a name of the file type by the file name and vice versa.
+The core abstraction of the Bun tool is `checks.Check`:
 
-#### Simple search check
+```go
+package checks
 
-Simple search check fails when a specified string is found in a
-specified file of a specified type. Use it when you'd like to check if the log file
-contains a record which appears only when the error occurs in the correspondent
-DC/OS component.
+type Check struct {
+	Name           string 
+	Description    string
+	Cure           string
+	OKSummary      string
+	ProblemSummary string
+	Run            CheckBundleFunc 
+}
 
-To create a new search check, simply add a YAML definition to the YAML document in the
-`checks/search_checks_yaml.go` file:
+type CheckBundleFunc func(bundle.Bundle) Results
+
+type Result struct {
+	Status Status
+	Value  interface{}
+	Host   bundle.Host
+}
+```
+
+To add a new check you need to create an instance of that struct, describe the check by specifying its string fields,
+and provide a Run function, which does actual testing. 
+
+To make adding checks easier, Bun source code provides some help
+like ability to declare checks as a YAML object, or Run function builder. You can read about that in the next sections.
+
+#### Search check
+
+Search checks are looking for a specified strings or regular expressions in a bundle file to detect or rule out a 
+specific problem. Also, search checks is very easy to add -- you don't even need to write a code. 
+
+To create a new search check, simply add a new object to the YAML document in the
+`checks/search_checks_yaml.go` file. For example: 
+
+```yaml
+- name: exhibitor-disk-space
+  description: Checks for disk space errors in Exhibitor logs
+  fileTypeName: exhibitor-log
+  errorPattern: 'No space left on device'
+  cure: Please check that there is sufficient free space on the disk.
+```
+
+To avoid false positives, you can specify a a string or regular expression, which manifests that the
+problem is gone. For example, the following check will not fail if the string "Time is in sync" appears 
+in the networking log after the last "Checks if time is synchronised on the host machine." message.
+
+```yaml
+- name: time-sync
+  description: Checks if time is synchronised on the host machine.
+  fileTypeName: net-log
+  errorPattern: '(internal consistency is broken|Unable to determine clock sync|Time is not synchronized|Clock is less stable than allowed|Clock is out of sync)'
+  isErrorPatternRegexp: true
+  curePattern: 'Time is in sync'
+  cure: Check NTP settings and NTP server availability.
+```
+
+#### Check if a condition on each node
+
+If you need to check that a certain condition is satisfied on each DC/OS node of a given type (i.e.: master, agent, or public agent), you can 
+use the `checks.CheckFuncBuilder`. With its help, you only need to create a function which checks for the condition on
+one node. The builder will do the rest. For example, the following check detects a situation when Mesos mailboxes have
+too many messages:
 
 ```yaml
 ...
-  - name: disk-space-exhibitor
-    description: Check disk space errors in Exhibitor logs
-    fileTypeName: exhibitor-log
-    errorPattern: No space left on device
-```
-
-#### Check if a certain condition is fulfilled on each node
-
-If you would like to check for a certain condition on each node of a certain role
-(i.e.: master, agent or public agent), please use the `bun.CheckBuilder` with a default
-aggregate function:
-
-```go
-package health
-
-import (
-	"fmt"
-	"github.com/adyatlov/bun/filetypes"
-	"strings"
-
-	"github.com/adyatlov/bun"
-)
-
-func init() {
-	builder := bun.CheckBuilder{
-		Name:                    "diagnostics-health",
-		Description:             "Check if all DC/OS components are healthy",
-		CollectFromMasters:      collect,
-		CollectFromAgents:       collect,
-		CollectFromPublicAgents: collect,
-		Aggregate:               bun.DefaultAggregate,
+	builder := checks.CheckFuncBuilder{
+		CheckMasters:      collect,
+		CheckAgents:       collect,
+		CheckPublicAgents: collect,
 	}
-	check := builder.Build()
-	bun.RegisterCheck(check)
+	check := checks.Check{
+		Name: "mesos-actor-mailboxes",
+		Description: "Checks if actor mailboxes in the Mesos process " +
+			"have a reasonable amount of messages",
+		Cure: "Check I/O on the correspondent hosts and if something is overloading Mesos agents or masters" +
+			" with API calls.",
+		OKSummary:      "All Mesos actors are fine.",
+		ProblemSummary: "Some Mesos actors are backlogged.",
+		Run:            builder.Build(),
+	}
+...
+
+type MesosActor struct {
+	ID     string `json:"id"`
+	Events []struct{}
 }
 
-func collect(host bun.Host) (ok bool, details interface{}, err error) {
-	h := filetypes.Host{}
-	if err = host.ReadJSON("diagnostics-health", &h); err != nil {
-		return
-	}
-	unhealthy := []string{}
-	for _, u := range h.Units {
-		if u.Health != 0 {
-			unhealthy = append(unhealthy,
-				fmt.Sprintf("%v: health = %v", u.ID, u.Health))
+func collect(host bundle.Host) checks.Result {
+	var actors []MesosActor
+	if err := host.ReadJSON("mesos-processes", &actors); err != nil {
+		return checks.Result{
+			Status: checks.SUndefined,
+			Value:  err,
 		}
 	}
-	if len(unhealthy) > 0 {
-		details = fmt.Sprintf("The following components are not healthy:\n%v",
-			strings.Join(unhealthy, "\n"))
-		ok = false
-	} else {
-		ok = true
+	var mailboxes []string
+	for _, a := range actors {
+		if len(a.Events) > maxEvents {
+			mailboxes = append(mailboxes, fmt.Sprintf("(Mesos) %v@%v: mailbox size = %v (> %v)",
+				a.ID, host.IP, len(a.Events), maxEvents))
+		}
 	}
-	return
+	if len(mailboxes) > 0 {
+		return checks.Result{
+			Host:   host,
+			Status: checks.SProblem,
+			Value:  mailboxes,
+		}
+	}
+	return checks.Result{
+		Status: checks.SOK,
+	}
 }
 ```
 
-#### More complex checks
-
-If you need a check which requires analysis of a collected data, you can use a custom
-aggregate function:
-
-```go
-package dcosversion
-
-import (
-	"fmt"
-	"github.com/adyatlov/bun"
-	"github.com/adyatlov/bun/filetypes"
-)
-
-func init() {
-	builder := bun.CheckBuilder{
-		Name: "dcos-version",
-		Description: "Verify that all hosts in the cluster have the " +
-			"same DC/OS version installed",
-		CollectFromMasters:      collect,
-		CollectFromAgents:       collect,
-		CollectFromPublicAgents: collect,
-		Aggregate:               aggregate,
-	}
-	check := builder.Build()
-	bun.RegisterCheck(check)
-}
-
-func collect(host bun.Host) (ok bool, details interface{}, err error) {
-	v := filetypes.Version{}
-	if err = host.ReadJSON("dcos-version", &v); err != nil {
-		return
-	}
-	details = v.Version
-	ok = true
-	return
-}
-
-func aggregate(c *bun.Check, b bun.CheckBuilder) {
-	version := ""
-	// Compare versions
-	details := []string{}
-	ok := true
-	for _, r := range b.OKs {
-		v := r.Details.(string)
-		if version == "" {
-			version = v
-		}
-		if v != version {
-			ok = false
-		}
-		details = append(details, fmt.Sprintf("%v %v has DC/OS version %v",
-			r.Host.Type, r.Host.IP, v))
-	}
-	// No need to interpret problems, as we didn't create it in the host check.
-	if ok {
-		c.OKs = details
-		c.Summary = fmt.Sprintf("All versions are the same: %v.", version)
-	} else {
-		c.Problems = details
-		c.Summary = "Versions are different."
-	}
-}
-```
+If your check needs to analyse the data collected on each node, you can implement an Aggregate function instead of
+using the the default one; please see an example in the `dcos-version` (`checks/dcosversion/check.go`) check.
 
 ### How to release
 

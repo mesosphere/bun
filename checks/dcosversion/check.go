@@ -7,19 +7,19 @@ import (
 
 func init() {
 	builder := checks.CheckFuncBuilder{
-		CollectFromMasters:      collect,
-		CollectFromAgents:       collect,
-		CollectFromPublicAgents: collect,
-		Aggregate:               aggregate,
+		CheckMasters:      collect,
+		CheckAgents:       collect,
+		CheckPublicAgents: collect,
+		Aggregate:         aggregate,
 	}
 	check := checks.Check{
 		Name: "dcos-version",
-		Description: "Verify that all hosts in the cluster have the " +
+		Description: "Verifies that all hosts in the cluster have the " +
 			"same DC/OS version installed",
 		Cure:           "Upgrade the nodes which have older DC/OS versions.",
 		OKSummary:      "All the nodes have the same DC/OS version.",
 		ProblemSummary: "The nodes have different DC/OS versions installed.",
-		CheckFunc:      builder.Build(),
+		Run:            builder.Build(),
 	}
 	checks.RegisterCheck(check)
 }
@@ -29,37 +29,38 @@ type Version struct {
 	Version string
 }
 
-func collect(host bundle.Host) checks.Detail {
+func collect(host bundle.Host) checks.Result {
 	v := Version{}
 	if err := host.ReadJSON("dcos-version", &v); err != nil {
-		return checks.Detail{
+		return checks.Result{
 			Status: checks.SUndefined,
-			Err:    err,
+			Value:  err,
 		}
 	}
-	return checks.Detail{
+	return checks.Result{
 		Status: checks.SOK,
 		Value:  v.Version,
 	}
 }
 
-func aggregate(details checks.Details) checks.Details {
+func aggregate(results checks.Results) checks.Results {
 	ok := true
 	var version string
-	for _, detail := range details {
+	for _, result := range results.OKs() {
 		if version == "" {
-			version = detail.Value.(string)
+			version = result.Value.(string)
 		}
-		if version != detail.Value.(string) {
+		if version != result.Value.(string) {
 			ok = false
 			break
 		}
 	}
 	if ok {
-		return details
+		return results
 	}
-	for _, d := range details {
+	for _, d := range results {
 		d.Status = checks.SProblem
 	}
-	return details
+	results = append(results, results.Undefined()...)
+	return results
 }

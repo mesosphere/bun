@@ -2,7 +2,9 @@ package checks
 
 import (
 	"fmt"
+	"path"
 	"regexp"
+	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -26,38 +28,52 @@ type SearchCheck struct {
 	cureRegexp           *regexp.Regexp
 }
 
-func (c SearchCheck) checkFunc() CheckFunc {
-	if c.FileTypeName == "" {
-		panic("FileTypeName should be specified.")
-	}
-	if c.ErrorPattern == "" {
-		panic("ErrorPattern should be set.")
-	}
-	if c.FailIfNotFound && c.CurePattern != "" {
-		panic("FailIfNotFound and CurePattern are mutually exclusive")
-	}
-	if c.IsErrorPatternRegexp {
-		c.errorRegexp = regexp.MustCompile(c.ErrorPattern)
-	}
-	if c.IsCurePatternRegexp {
-		c.cureRegexp = regexp.MustCompile(c.CurePattern)
-	}
+func (c SearchCheck) checkFunc() CheckBundleFunc {
 	builder := CheckFuncBuilder{}
 	t := bundle.GetFileType(c.FileTypeName)
 	for _, dirType := range t.DirTypes {
 		switch dirType {
 		case bundle.DTMaster:
-			builder.CollectFromMasters = c.collect
+			builder.CheckMasters = c.search
 		case bundle.DTAgent:
-			builder.CollectFromAgents = c.collect
+			builder.CheckAgents = c.search
 		case bundle.DTPublicAgent:
-			builder.CollectFromPublicAgents = c.collect
+			builder.CheckPublicAgents = c.search
 		}
 	}
+	builder.Aggregate = aggregate
 	return builder.Build()
 }
 
-func (c SearchCheck) collect(host bundle.Host) Detail {
+type problemValue struct {
+	count int
+	file  bundle.File
+}
+
+func aggregate(r Results) Results {
+	var results Results = make([]Result, 0, len(r))
+	problems := r.Problems()
+	if len(problems) > 0 {
+		if _, ok := problems[0].Value.(problemValue); ok {
+			sort.Slice(problems, func(i int, j int) bool {
+				countI := problems[i].Value.(problemValue).count
+				countJ := problems[j].Value.(problemValue).count
+				return countI > countJ
+			})
+			for i := range problems {
+				problem := problems[i].Value.(problemValue)
+				problems[i].Value = fmt.Sprintf("Error pattern occurred %v time(s) in file %s",
+					problem.count, path.Base(problem.file.Name()))
+			}
+		}
+	}
+	results = append(results, problems...)
+	results = append(results, r.Undefined()...)
+	results = append(results, r.OKs()...)
+	return results
+}
+
+func (c SearchCheck) search(host bundle.Host) Result {
 	var count int
 	var lastN int
 	var lastNCure int
@@ -98,26 +114,32 @@ func (c SearchCheck) collect(host bundle.Host) Detail {
 		}
 		return false
 	}
-	err := host.ScanLines(c.FileTypeName, f)
+
+	file, err := host.ScanLines(c.FileTypeName, f)
+	if err != nil {
+		return Result{
+			Status: SUndefined,
+			Host:   host,
+			Value:  "Couldn't check. Error: " + err.Error(),
+		}
+	}
 	if c.FailIfNotFound {
 		if count == 0 {
-			return Detail{
+			return Result{
 				Status: SProblem,
-				Err:    err,
+				Value:  "Expected pattern not found in " + file.Name(),
 			}
 		}
 	} else {
 		if count > c.Max && lastN > lastNCure {
-			return Detail{
+			return Result{
 				Status: SProblem,
-				Value:  count,
-				Err:    err,
+				Value:  problemValue{count, file},
 			}
 		}
 	}
-	return Detail{
+	return Result{
 		Status: SOK,
-		Err:    err,
 	}
 }
 
@@ -128,13 +150,28 @@ func RegisterSearchChecks() {
 		panic("Cannot read search checks YAML: " + err.Error())
 	}
 	for _, c := range searchChecks {
-		c.CheckFunc = c.checkFunc()
+		if c.FileTypeName == "" {
+			panic("FileTypeName should be specified.")
+		}
+		if c.ErrorPattern == "" {
+			panic("ErrorPattern should be set.")
+		}
+		if c.FailIfNotFound && c.CurePattern != "" {
+			panic("FailIfNotFound and CurePattern are mutually exclusive")
+		}
+		if c.IsErrorPatternRegexp {
+			c.errorRegexp = regexp.MustCompile(c.ErrorPattern)
+		}
+		if c.IsCurePatternRegexp {
+			c.cureRegexp = regexp.MustCompile(c.CurePattern)
+		}
+		c.Run = c.checkFunc()
 		if c.FailIfNotFound {
-			c.OKSummary = fmt.Sprintf("Expected pattern \"%s\" was found in file.", c.ErrorPattern)
-			c.ProblemSummary = fmt.Sprintf("Expected pattern \"%s\" was not found.", c.ErrorPattern)
+			c.OKSummary = fmt.Sprintf("Expected pattern \"%s\" found.", c.ErrorPattern)
+			c.ProblemSummary = fmt.Sprintf("Expected pattern \"%s\" not found.", c.ErrorPattern)
 		} else {
-			c.OKSummary = fmt.Sprintf("Error pattern \"%s\" was not found.", c.ErrorPattern)
-			c.ProblemSummary = fmt.Sprintf("Error pattern \"%s\" was found.", c.ErrorPattern)
+			c.OKSummary = fmt.Sprintf("Error pattern \"%s\" not found.", c.ErrorPattern)
+			c.ProblemSummary = fmt.Sprintf("Error pattern \"%s\" found.", c.ErrorPattern)
 		}
 		RegisterCheck(c.Check)
 	}

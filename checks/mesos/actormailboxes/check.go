@@ -13,19 +13,19 @@ const maxEvents = 30
 
 func init() {
 	builder := checks.CheckFuncBuilder{
-		CollectFromMasters:      collect,
-		CollectFromAgents:       collect,
-		CollectFromPublicAgents: collect,
+		CheckMasters:      collect,
+		CheckAgents:       collect,
+		CheckPublicAgents: collect,
 	}
 	check := checks.Check{
 		Name: "mesos-actor-mailboxes",
-		Description: "Check if actor mailboxes in the Mesos process " +
+		Description: "Checks if actor mailboxes in the Mesos process " +
 			"have a reasonable amount of messages",
 		Cure: "Check I/O on the correspondent hosts and if something is overloading Mesos agents or masters" +
 			" with API calls.",
 		OKSummary:      "All Mesos actors are fine.",
 		ProblemSummary: "Some Mesos actors are backlogged.",
-		CheckFunc:      builder.Build(),
+		Run:            builder.Build(),
 	}
 	checks.RegisterCheck(check)
 }
@@ -35,12 +35,12 @@ type MesosActor struct {
 	Events []struct{}
 }
 
-func collect(host bundle.Host) checks.Detail {
+func collect(host bundle.Host) checks.Result {
 	var actors []MesosActor
 	if err := host.ReadJSON("mesos-processes", &actors); err != nil {
-		return checks.Detail{
+		return checks.Result{
 			Status: checks.SUndefined,
-			Err:    err,
+			Value:  err,
 		}
 	}
 	var mailboxes []string
@@ -51,12 +51,13 @@ func collect(host bundle.Host) checks.Detail {
 		}
 	}
 	if len(mailboxes) > 0 {
-		return checks.Detail{
+		return checks.Result{
+			Host:   host,
 			Status: checks.SProblem,
 			Value:  mailboxes,
 		}
 	}
-	return checks.Detail{
+	return checks.Result{
 		Status: checks.SOK,
 	}
 }

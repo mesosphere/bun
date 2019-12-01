@@ -54,30 +54,30 @@ type ipResults struct {
 
 func init() {
 	builder := checks.CheckFuncBuilder{
-		CollectFromMasters:      collectMasters,
-		CollectFromAgents:       collectAgents,
-		CollectFromPublicAgents: collectAgents,
-		Aggregate:               aggregate,
+		CheckMasters:      collectMasters,
+		CheckAgents:       collectAgents,
+		CheckPublicAgents: collectAgents,
+		Aggregate:         aggregate,
 	}
 	check := checks.Check{
 		Name:           "mesos-9868",
-		Description:    "Check if the cluster is affected by the MESOS-9868 bug",
-		Cure:           "Please, see https://issues.apache.org/jira/browse/MESOS-9868 for details.",
+		Description:    "Checks if the cluster is affected by the MESOS-9868 bug",
+		Cure:           "Please, see https://issues.apache.org/jira/browse/MESOS-9868 for results.",
 		OKSummary:      "The cluster is not affected by the MESOS-9868 bug.",
 		ProblemSummary: "The cluster is affected by the MESOS-9868 bug.",
-		CheckFunc:      builder.Build(),
+		Run:            builder.Build(),
 	}
 	checks.RegisterCheck(check)
 }
 
-func collectMasters(host bundle.Host) checks.Detail {
+func collectMasters(host bundle.Host) checks.Result {
 	var mesosState mesosState
 
 	if err := host.ReadJSON("mesos-master-state", &mesosState); err != nil {
 		err = fmt.Errorf("unable to parse: %v", err)
-		return checks.Detail{
+		return checks.Result{
 			Status: checks.SUndefined,
-			Err:    err,
+			Value:  err,
 		}
 	}
 	summary := make(map[string]ipResults)
@@ -91,9 +91,9 @@ func collectMasters(host bundle.Host) checks.Detail {
 			}
 			if lastStatus == nil {
 				err := fmt.Errorf("no statuses found for task %s", t.Name)
-				return checks.Detail{
+				return checks.Result{
 					Status: checks.SUndefined,
-					Err:    err,
+					Value:  err,
 				}
 			}
 			var ips ipResults
@@ -111,19 +111,19 @@ func collectMasters(host bundle.Host) checks.Detail {
 			}
 		}
 	}
-	return checks.Detail{
+	return checks.Result{
 		Value: summary,
 	}
 }
 
-func collectAgents(host bundle.Host) checks.Detail {
+func collectAgents(host bundle.Host) checks.Result {
 	var mesosContainers []mesosContainer
 
 	if err := host.ReadJSON("mesos-agent-containers", &mesosContainers); err != nil {
 		err = fmt.Errorf("unable to parse: %s", err.Error())
-		return checks.Detail{
+		return checks.Result{
 			Status: checks.SUndefined,
-			Err:    err,
+			Value:  err,
 		}
 	}
 	summary := make(map[string]ipResults)
@@ -136,23 +136,16 @@ func collectAgents(host bundle.Host) checks.Detail {
 		}
 		summary[c.ContainerID] = ips
 	}
-	return checks.Detail{
-		Value: summary,
+	return checks.Result{
+		Status: checks.SOK,
+		Value:  summary,
 	}
 }
 
-func aggregate(details checks.Details) checks.Details {
+func aggregate(r checks.Results) checks.Results {
 	// Collect all the ipResults from tasks and containers
 	summary := make(map[string]ipResults)
-	errs := make([]checks.Detail, 0, len(details))
-	for _, d := range details {
-		if d.Err != nil {
-			errs = append(errs, checks.Detail{
-				Status: checks.SUndefined,
-				Err:    d.Err,
-			})
-			continue
-		}
+	for _, d := range r.OKs() {
 		for container, ips := range d.Value.(map[string]ipResults) {
 			v := summary[container]
 			v.TaskIPs = append(v.TaskIPs, ips.TaskIPs...)
@@ -160,8 +153,8 @@ func aggregate(details checks.Details) checks.Details {
 			summary[container] = v
 		}
 	}
-	results := make([]checks.Detail, 0, len(summary))
-	results = append(results, errs...)
+	var results checks.Results = make([]checks.Result, 0, len(summary))
+	results = append(results, results.Undefined()...)
 	// See if they do not match
 	for container, ips := range summary {
 		// Ignore case where we weren't able to detect
@@ -179,7 +172,7 @@ func aggregate(details checks.Details) checks.Details {
 			if !found {
 				sort.Strings(ips.ContainerIPs)
 				results = append(results,
-					checks.Detail{
+					checks.Result{
 						Status: checks.SProblem,
 						Value: fmt.Sprintf("Container %s: IP %s from Mesos master \"/state\" endpoint "+
 							"does not match any IP from Mesos agent \"/containers\" endpoint: %s.",
@@ -189,7 +182,7 @@ func aggregate(details checks.Details) checks.Details {
 		}
 		if found {
 			results = append(results,
-				checks.Detail{
+				checks.Result{
 					Status: checks.SOK,
 					Value:  fmt.Sprintf("Container %s ipResults match", container),
 				})

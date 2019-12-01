@@ -74,11 +74,8 @@ func (d directory) OpenFile(typeName FileTypeName) (File, error) {
 		}
 	}
 	if !ok {
-		return nil, fmt.Errorf("%v files do not belong to %v hosts",
-			fileType.Name,
-			d.Type)
+		panic(fmt.Sprintf("%v file type does not belong to %v hosts", fileType, d.Type))
 	}
-	var notFound []string
 	for _, localPath := range fileType.Paths {
 		filePath := path.Join(d.Path, localPath)
 		file, err := os.Open(filePath)
@@ -89,7 +86,6 @@ func (d directory) OpenFile(typeName FileTypeName) (File, error) {
 			return nil, err // error
 		}
 		// not found
-		notFound = append(notFound, filePath)
 		// try to open correspondent .gz file
 		filePath += ".gz"
 		file, err = os.Open(filePath)
@@ -97,7 +93,6 @@ func (d directory) OpenFile(typeName FileTypeName) (File, error) {
 			if !os.IsNotExist(err) {
 				return nil, err // error
 			}
-			notFound = append(notFound, filePath)
 			continue // not found
 		}
 		// found
@@ -111,8 +106,7 @@ func (d directory) OpenFile(typeName FileTypeName) (File, error) {
 			namer
 		}{io.Reader(r), bulkCloser{r, file}, namer(filePath)}, nil
 	}
-	return nil, fmt.Errorf("none of the following files are found:\n%v",
-		strings.Join(notFound, "\n"))
+	return nil, fmt.Errorf("file(s) not found: %v", strings.Join(fileType.Paths, ", "))
 }
 
 // ReadJSON reads JSON-encoded data from the bundle file and stores the result in
@@ -138,12 +132,12 @@ func (d directory) ReadJSON(typeName FileTypeName, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
 
-func (d directory) ScanLines(t FileTypeName, f func(n int, line string) bool) error {
+func (d directory) ScanLines(t FileTypeName, f func(n int, line string) bool) (File, error) {
 	file, err := d.OpenFile(t)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	close := func() error {
+	closeFunc := func() error {
 		if err := file.Close(); err != nil {
 			e := fmt.Sprintf("bun.directory.FindLine: Cannot close file %v with error: %v",
 				file.Name(), err)
@@ -158,25 +152,26 @@ func (d directory) ScanLines(t FileTypeName, f func(n int, line string) bool) er
 		}
 		return nil
 	}
-	scanner := bufio.NewScanner(file)
-	for i := 1; scanner.Scan(); i++ {
-		line := scanner.Text()
+	reader := bufio.NewReader(file)
+	for i := 1; ; i++ {
+		line, err := reader.ReadString('\n')
 		if f(i, line) {
-			if err = close(); err != nil {
-				return err
+			if err := closeFunc(); err != nil {
+				return nil, err
 			}
-			return nil
+			return file, nil
+		}
+		if err == io.EOF {
+			if err := closeFunc(); err != nil {
+				return nil, err
+			}
+			return file, nil
+		}
+		if err != nil {
+			if err := closeFunc(); err != nil {
+				return nil, err
+			}
+			return nil, err
 		}
 	}
-	if err = scanner.Err(); err != nil {
-		if err = close(); err != nil {
-			return err
-		}
-		return err
-	}
-	// Not found
-	if err = close(); err != nil {
-		return err
-	}
-	return nil
 }

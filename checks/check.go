@@ -14,74 +14,61 @@ const (
 	SProblem = "PROBLEM"
 )
 
-// MsgErr is a standard message used in the check summary when errors
-// occurs during the check.
-const MsgErr = "Error(s) occurred while performing the check."
-
-// cluster analyzing its diagnostics bundle. Check supposed to populate fields
-// of the CheckResult.
-// Each check should implement this interface.
-
 // Check checks some aspect of the DC/OS cluster analyzing its diagnostics
 // bundle.
 // Checks can be registered in the check registry with the registerCheck function.
-// Check is not supposed to be run more than one time.
 type Check struct {
-	Name           string    `yaml:"name"`           // Required
-	Description    string    `yaml:"description"`    // Required
-	Cure           string    `yaml:"cure"`           // Required
-	OKSummary      string    `yaml:"okSummary"`      // Optional
-	ProblemSummary string    `yaml:"problemSummary"` // Optional
-	CheckFunc      CheckFunc // Required
+	Name           string          `yaml:"name"`           // Required
+	Description    string          `yaml:"description"`    // Required
+	Cure           string          `yaml:"cure"`           // Required
+	OKSummary      string          `yaml:"okSummary"`      // Optional
+	ProblemSummary string          `yaml:"problemSummary"` // Optional
+	Run            CheckBundleFunc // Required
 }
 
-type CheckFunc func(bundle.Bundle) Details
+type CheckBundleFunc func(bundle.Bundle) Results
 
-type Detail struct {
+// Result represents check result.
+type Result struct {
 	Status Status
 	Value  interface{}
-	Host   *bundle.Host
-	Err    error
+	Host   bundle.Host
 }
 
-type Details []Detail
+func (r Result) IsHostSet() bool {
+	return r.Host.IP != ""
+}
 
-func (d Details) filter(status Status) Details {
-	details := make([]Detail, 0, len(d))
-	for _, detail := range d {
-		if detail.Status == status {
-			details = append(details, detail)
+type Results []Result
+
+func (d Results) filter(status Status) Results {
+	results := make([]Result, 0, len(d))
+	for _, result := range d {
+		if result.Status == status {
+			results = append(results, result)
 		}
 	}
-	return details
+	return results
 }
 
-func (d Details) Problems() Details {
+func (d Results) Problems() Results {
 	return d.filter(SProblem)
 }
 
-func (d Details) Failures() Details {
+func (d Results) Undefined() Results {
 	return d.filter(SUndefined)
 }
 
-func (d Details) OKs() Details {
+func (d Results) OKs() Results {
 	return d.filter(SOK)
 }
 
-// Run runs the check.
-func (c *Check) Run(b bundle.Bundle) (status Status, summary string, details Details) {
-	details = c.CheckFunc(b)
-	if len(details.Problems()) > 0 {
-		status = SProblem
-		summary = c.ProblemSummary
-		return
+func (d Results) Status() Status {
+	if len(d.Problems()) > 0 {
+		return SProblem
 	}
-	if len(details.Failures()) > 0 {
-		status = SUndefined
-		summary = MsgErr
-		return
+	if len(d.Undefined()) > 0 {
+		return SUndefined
 	}
-	summary = c.OKSummary
-	status = SOK
-	return
+	return SOK
 }

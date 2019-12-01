@@ -1,6 +1,7 @@
 package bundle
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -80,6 +81,16 @@ func NewBundle(path string) (Bundle, error) {
 			panic(fmt.Sprintf("Unknown directory type: %v", groups[5]))
 		}
 		b.Hosts = append(b.Hosts, host)
+	}
+
+	if len(b.Hosts) == 0 {
+		_, err = b.OpenFile("summary-report")
+		if err != nil {
+			_, err = b.OpenFile("summary-errors-report")
+			if err != nil {
+				return b, errors.New("bundle not found in the given directory")
+			}
+		}
 	}
 	return b, nil
 }
