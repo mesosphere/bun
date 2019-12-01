@@ -126,6 +126,8 @@ $ ./go -p <path to a bundle directory>
 Names of DC/OS diagnostics bundle files may vary from one version of DC/OS to another, moreover, they are not always
 descriptive or handy. That is why in Bun we give each file a human-readable self-explanatory ID and use these IDs
 to refer to the bundle files. File `files_type_yaml.go` contains description of bundle files.
+The `bundle.Bundle` struct is a representation or the diagnostics bundle file structure; use it to browse through the bundle
+and access its files.
 
 ### How to add new checks
 
