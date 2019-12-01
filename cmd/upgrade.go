@@ -57,8 +57,10 @@ func CheckNewRelease() {
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	if err := cmd.Run(); err != nil {
-		fmt.Println("Couldn't launch to the newer version:", err.Error())
-		os.Exit(1)
+		if _, ok := err.(*exec.ExitError); !ok {
+			fmt.Println("Couldn't launch to the newer version:", err.Error())
+			os.Exit(1)
+		}
 	}
 	os.Exit(0)
 }
