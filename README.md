@@ -219,8 +219,9 @@ type Result struct {
 To add a new check you need to create an instance of that struct, describe the check by specifying its string fields,
 and provide a Run function, which does actual testing. 
 
-To make adding checks easier, Bun source code provides some help
-like ability to declare checks as a YAML object, or Run function builder. You can read about that in the next sections.
+To make adding checks easier, Bun provides some help; for example,
+you can declare checks as a YAML object, or use the `CheckFuncBuilder` struct 
+to simplify creation of the `Cehck.Run` function. Please. see the next sections for the details.
 
 #### Search check
 
