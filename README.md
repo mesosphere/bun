@@ -5,52 +5,6 @@ by analyzing its [diagnostics bundle](https://docs.mesosphere.com/1.11/cli/comma
 
 ```
 $ bun
-+-------------+----------------------------------------------------------+
-| Check       | docker-not-running                                       |
-+-------------+----------------------------------------------------------+
-| Status      | [UNDEFINED]                                              |
-+-------------+----------------------------------------------------------+
-| Description | Checks if docker is running                              |
-+-------------+----------------------------------------------------------+
-| Summary     | Couldn't check any hosts because of the error(s). Launch |
-|             | this check with the -v flag to see the details.          |
-+-------------+----------------------------------------------------------+
-
-+-------------+----------------------------------------------------------+
-| Check       | firewalld-running                                        |
-+-------------+----------------------------------------------------------+
-| Status      | [UNDEFINED]                                              |
-+-------------+----------------------------------------------------------+
-| Description | Detects if firewalld is running on a DC/OS node          |
-+-------------+----------------------------------------------------------+
-| Summary     | Couldn't check any hosts because of the error(s). Launch |
-|             | this check with the -v flag to see the details.          |
-+-------------+----------------------------------------------------------+
-
-+------------------------+-----------------------------------------------------------+
-| Check                  | mesos-agent-invalid-cert                                  |
-+------------------------+-----------------------------------------------------------+
-| Status                 | [PROBLEM]                                                 |
-+------------------------+-----------------------------------------------------------+
-| Description            | Checks if there are errors for invalid certificate when   |
-|                        | fetching artifacts                                        |
-+------------------------+-----------------------------------------------------------+
-| Cure                   | Mesos agent is using certificates which does not allow to |
-|                        | fetch an artifact from some repository. Please see        |
-|                        | https://jira.mesosphere.com/browse/COPS-2315 and          |
-|                        | https://jira.mesosphere.com/browse/COPS-2106 for more     |
-|                        | information.                                              |
-+------------------------+-----------------------------------------------------------+
-| Summary                | Error pattern "Container.*Failed to perform 'curl'.*SSL   |
-|                        | certificate problem: self signed certificate" found.      |
-+------------------------+-----------------------------------------------------------+
-| [P] agent 10.10.10.105 | Error pattern occurred 10 time(s) in file                 |
-|                        | dcos-mesos-slave.service.gz                               |
-+------------------------+-----------------------------------------------------------+
-| [P] agent 10.10.10.104 | Error pattern occurred 1 time(s) in file                  |
-|                        | dcos-mesos-slave.service.gz                               |
-+------------------------+-----------------------------------------------------------+
-
 +------------------------+--------------------------------------------------------------+
 | Check                  | networking-errors                                            |
 +------------------------+--------------------------------------------------------------+
@@ -103,9 +57,9 @@ $ bun
 +-----------+----+
 |  SUMMARY  |    |
 +-----------+----+
-| Failed    |  3 |
-| Undefined |  3 |
-| Passed    | 16 |
+| Failed    |  2 |
+| Undefined |  1 |
+| Passed    | 19 |
 +-----------+----+
 |   TOTAL   | 22 |
 +-----------+----+
