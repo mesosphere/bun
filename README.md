@@ -196,7 +196,7 @@ use the `checks.CheckFuncBuilder`. With its help, you only need to create a func
 one node. The builder will do the rest. For example, the following check detects a situation when Mesos mailboxes have
 too many messages:
 
-```yaml
+```go
 ...
 	builder := checks.CheckFuncBuilder{
 		CheckMasters:      collect,
