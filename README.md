@@ -148,7 +148,7 @@ $ go get github.com/mesosphere/bun
 ```
 ## Update
 
-Bun checks for its new versions and update itself automatically with your permission.
+Bun checks for its new versions and updates itself automatically with your permission.
 
 ## Usage
 
