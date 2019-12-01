@@ -156,7 +156,7 @@ Bun checks for its new versions and updates itself automatically with your permi
 $ bun -p <path to bundle directory>
 ```
 
-or if you working directory is the bundle directory simply:
+or if the working directory is the bundle directory simply:
 
 ```bash
 $ bun
