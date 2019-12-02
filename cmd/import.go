@@ -6,5 +6,6 @@ import (
 	_ "github.com/mesosphere/bun/v2/checks/marathon/deployments"
 	_ "github.com/mesosphere/bun/v2/checks/mesos/actormailboxes"
 	_ "github.com/mesosphere/bun/v2/checks/mesos/mesos9868"
+	_ "github.com/mesosphere/bun/v2/checks/mesos/unregistered_agents"
 	_ "github.com/mesosphere/bun/v2/checks/nodecount"
 )
