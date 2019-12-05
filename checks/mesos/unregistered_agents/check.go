@@ -5,15 +5,19 @@ import (
 
 	"github.com/mesosphere/bun/v2/bundle"
 	"github.com/mesosphere/bun/v2/checks"
+
+	"github.com/lithammer/dedent"
 )
 
 func init() {
 	builder := checks.CheckFuncBuilder{CheckMasters: collect}
 
 	check := checks.Check{
-		Name:           "mesos-unregistered-agents",
-		Description:    "Checks for unregistered Mesos agents",
-		Cure:           "Determine why Mesos agents cannot register by examining the Mesos agent log.",
+		Name:        "mesos-unregistered-agents",
+		Description: "Checks for unregistered Mesos agents",
+		Cure: dedent.Dedent(`
+			Determine why Mesos agents cannot register by examining the Mesos agent log.
+			In order to register an agent needs to have finished its revovery, have detected the master, and be able to connect to it.`),
 		OKSummary:      "All Mesos agents appear to be registered.",
 		ProblemSummary: "Some Mesos agents appear to be unregistered.",
 		Run:            builder.Build(),
