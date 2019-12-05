@@ -23,13 +23,10 @@ func init() {
 }
 
 type slave struct {
-	PID         string `json:"pid"`
-	Active      bool   `json:"active"`
-	Deactivated bool   `json:"deactivated"`
+	PID string `json:"pid"`
 }
 
 type state struct {
-	Slaves          []slave `json:"slaves"`
 	RecoveredSlaves []slave `json:"recovered_slaves"`
 }
 
@@ -44,12 +41,6 @@ func collect(host bundle.Host) checks.Result {
 	}
 
 	var unregistered []string
-	for _, slave := range state.Slaves {
-		if !slave.Active && !slave.Deactivated {
-			unregistered = append(unregistered, fmt.Sprintf("(Mesos) %v appears to be registered but inactive", slave.PID))
-		}
-	}
-
 	for _, slave := range state.RecoveredSlaves {
 		unregistered = append(unregistered, fmt.Sprintf("(Mesos) %v appears unregistered", slave.PID))
 	}
