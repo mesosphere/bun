@@ -30,8 +30,14 @@ type slave struct {
 	PID string `json:"pid"`
 }
 
+type leaderinfo struct {
+	ID string `json:"id"`
+}
+
 type state struct {
-	RecoveredSlaves []slave `json:"recovered_slaves"`
+	RecoveredSlaves []slave    `json:"recovered_slaves"`
+	ID              string     `json:"id"`
+	LeaderInfo      leaderinfo `json:"leader_info"`
 }
 
 func collect(host bundle.Host) checks.Result {
@@ -42,6 +48,15 @@ func collect(host bundle.Host) checks.Result {
 			Status: checks.SUndefined,
 			Value:  err,
 		}
+	}
+
+	// While in general Mesos followers should redirect any requests for
+	// `mesos-master-state` to the leader so that all output files should be
+	// similar, defensively skip checking non-leaders.
+	if state.ID != state.LeaderInfo.ID {
+		return checks.Result{
+			Status: checks.SOK,
+			Value:  "Node is not the current leader"}
 	}
 
 	var unregistered []string
