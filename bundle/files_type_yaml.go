@@ -184,6 +184,15 @@ const filesYAML = `
   - master
   - agent
   - public agent
+- name: df
+  contentType: output
+  paths:
+  - df.output
+  description: ""
+  dirTypes:
+  - master
+  - agent
+  - public agent
 - name: diagnostics
   contentType: journal
   paths:
