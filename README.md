@@ -191,7 +191,7 @@ in the networking log after the last "Checks if time is synchronised on the host
   cure: Check NTP settings and NTP server availability.
 ```
 
-#### Check if a condition on each node
+#### Check a condition on each node of a certain type
 
 If you need to check that a certain condition is satisfied on each DC/OS node of a given type (i.e.: master, agent, or public agent), you can 
 use the `checks.CheckFuncBuilder`. With its help, you only need to create a function which checks for the condition on
