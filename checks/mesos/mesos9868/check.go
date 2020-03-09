@@ -47,9 +47,9 @@ type mesosState struct {
 }
 
 type ipResults struct {
-	TaskIPs      []string
-	ContainerIPs []string
-	HostIP       string
+	TaskIPs        []string
+	ContainerIPs   []string
+	ContainerAgent *bundle.Host
 }
 
 func init() {
@@ -134,6 +134,7 @@ func collectAgents(host bundle.Host) checks.Result {
 				ips.ContainerIPs = append(ips.ContainerIPs, i.IPAddress)
 			}
 		}
+		ips.ContainerAgent = &host
 		summary[c.ContainerID] = ips
 	}
 	return checks.Result{
@@ -150,6 +151,9 @@ func aggregate(r checks.Results) checks.Results {
 			v := summary[container]
 			v.TaskIPs = append(v.TaskIPs, ips.TaskIPs...)
 			v.ContainerIPs = append(v.ContainerIPs, ips.ContainerIPs...)
+			if ips.ContainerAgent != nil {
+				v.ContainerAgent = ips.ContainerAgent
+			}
 			summary[container] = v
 		}
 	}
@@ -158,9 +162,27 @@ func aggregate(r checks.Results) checks.Results {
 	// See if they do not match
 	for container, ips := range summary {
 		// Ignore case where we weren't able to detect
-		if len(ips.TaskIPs) == 0 || len(ips.ContainerIPs) == 0 {
+		if len(ips.TaskIPs) == 0 && len(ips.ContainerIPs) == 0 {
 			continue
 		}
+		if len(ips.TaskIPs) == 0 {
+			results = append(results,
+				checks.Result{
+					Status: checks.SProblem,
+					Host:   *ips.ContainerAgent,
+					Value: fmt.Sprintf("Container %s: appers to have a container network assigned (%s), but this is not reflected on mesos state.",
+						container, strings.Join(ips.ContainerIPs, ", "))})
+			continue
+		}
+		if len(ips.ContainerIPs) == 0 {
+			results = append(results,
+				checks.Result{
+					Status: checks.SProblem,
+					Value: fmt.Sprintf("Container %s: appears to have network IP addresses defined in mesos state (%s), but no container found with this IP.",
+						container, strings.Join(ips.TaskIPs, ", "))})
+			continue
+		}
+
 		found := false
 		for _, tip := range ips.TaskIPs {
 			for _, cip := range ips.ContainerIPs {
@@ -174,6 +196,7 @@ func aggregate(r checks.Results) checks.Results {
 				results = append(results,
 					checks.Result{
 						Status: checks.SProblem,
+						Host:   *ips.ContainerAgent,
 						Value: fmt.Sprintf("Container %s: IP %s from Mesos master \"/state\" endpoint "+
 							"does not match any IP from Mesos agent \"/containers\" endpoint: %s.",
 							container, tip, strings.Join(ips.ContainerIPs, ", "))})
