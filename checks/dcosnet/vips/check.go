@@ -76,6 +76,7 @@ type vipBackend struct {
 }
 
 type vip struct {
+	Host     bundle.IP    `json:"-"`
 	Name     string       `json:"vip"`
 	Backends []vipBackend `json:"backend"`
 }
@@ -100,6 +101,12 @@ func collectVIPs(host bundle.Host) checks.Result {
 			Status: checks.SUndefined,
 			Value:  err,
 		}
+	}
+
+	// Populate the non-JSON host IP, used for reporting the error in a
+	// user-friendly manner
+	for i, _ := range vips {
+		vips[i].Host = host.IP
 	}
 
 	return checks.Result{
@@ -192,7 +199,9 @@ func aggregate(r checks.Results) checks.Results {
 		}
 	}
 
-	// Lookup vips
+	// Check if every VIP backend has a corresponding running container and also
+	// make sure that the VIP configuration looks sane.
+	vipLookupByName := make(map[string]vip)
 	for _, d := range r.OKs() {
 		result := d.Value.(*scanResult)
 		for _, vip := range result.VIPs {
@@ -208,6 +217,53 @@ func aggregate(r checks.Results) checks.Results {
 				continue
 			}
 
+			// Take this opportunity to cross-check across the different hosts
+			// the VIP configuration. In a normal cluster the information is
+			// replicated in all hosts, so expect the same VIPs to have the same
+			// back-ends configured.
+			if otherVip, ok := vipLookupByName[vip.Name]; ok {
+				for _, otherBe := range otherVip.Backends {
+					found := false
+					for _, thisBe := range vip.Backends {
+						if thisBe.IP == otherBe.IP {
+							found = true
+							break
+						}
+					}
+					if !found {
+						results = append(results,
+							checks.Result{
+								Status: checks.SProblem,
+								Value: fmt.Sprintf(
+									"The backend %s of VIP '%s' was found declared on agent %s, but was not found present on agent %s (the configuration must be identical in all hosts)",
+									otherBe.IP, vip.Name, otherVip.Host, vip.Host,
+								)},
+						)
+					}
+				}
+				for _, thisBe := range vip.Backends {
+					found := false
+					for _, otherBe := range otherVip.Backends {
+						if thisBe.IP == otherBe.IP {
+							found = true
+							break
+						}
+					}
+					if !found {
+						results = append(results,
+							checks.Result{
+								Status: checks.SProblem,
+								Value: fmt.Sprintf(
+									"The backend %s of VIP '%s' was found declared on agent %s, but was not found present on agent %s (the configuration must be identical in all hosts)",
+									thisBe.IP, vip.Name, vip.Host, otherVip.Host,
+								)},
+						)
+					}
+				}
+			} else {
+				vipLookupByName[vip.Name] = vip
+			}
+
 			for _, ip := range vip.Backends {
 				if _, ok := ipMappings[ip.IP]; !ok {
 					results = append(results,
@@ -219,6 +275,33 @@ func aggregate(r checks.Results) checks.Results {
 							)},
 					)
 				}
+			}
+		}
+	}
+
+	// Now that we know all the VIP names, make sure that they are present
+	// in every host in the system. As mentioned before, the configuration must
+	// be identical in all hosts.
+	for _, d := range r.OKs() {
+		result := d.Value.(*scanResult)
+
+		for vipName, _ := range vipLookupByName {
+			found := false
+			for _, vip := range result.VIPs {
+				if vip.Name == vipName {
+					found = true
+					break
+				}
+			}
+			if !found {
+				results = append(results,
+					checks.Result{
+						Status: checks.SProblem,
+						Value: fmt.Sprintf(
+							"The VIP '%s' was not found on host %s",
+							vipName, d.Host.IP,
+						)},
+				)
 			}
 		}
 	}
