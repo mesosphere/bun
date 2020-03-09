@@ -1085,4 +1085,13 @@ const filesYAML = `
   description: ""
   dirTypes:
   - master
+- name: vips
+  contentType: JSON
+  paths:
+  - optmesospherebincurl_-s_-S_http:localhost:62080v1vips.output
+  description: "contains the VIP mappings"
+  dirTypes:
+  - master
+  - agent
+  - public agent
 `
