@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/lithammer/dedent"
+
 	"github.com/mesosphere/bun/v2/bundle"
 	"github.com/mesosphere/bun/v2/checks"
 )
@@ -42,9 +44,10 @@ func init() {
 	}
 
 	check := checks.Check{
-		Name:           "dcos-requirements",
-		Description:    "Checks that nodes meet system requirements",
-		Cure:           "Adjust the node spec to meet system requirements.",
+		Name:        "dcos-requirements",
+		Description: "Checks that nodes meet system requirements",
+		Cure: dedent.Dedent(`Adjust the node spec to meet system requirements: 
+			https://docs.d2iq.com/mesosphere/dcos/2.0/installing/production/system-requirements/`),
 		OKSummary:      "Nodes meet system requirements",
 		ProblemSummary: "Nodes do not meet system requirements",
 		Run:            builder.Build(),
