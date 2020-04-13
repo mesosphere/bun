@@ -784,6 +784,7 @@ const filesYAML = `
   contentType: JSON
   paths:
   - 5050-master_roles.json
+  - 5050:master_roles.json
   description: ""
   dirTypes:
   - master
@@ -791,6 +792,7 @@ const filesYAML = `
   contentType: JSON
   paths:
   - 5050-master_state.json
+  - 5050:master_state.json
   description: ""
   dirTypes:
   - master

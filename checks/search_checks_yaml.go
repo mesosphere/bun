@@ -75,7 +75,7 @@ const searchChecksYAML = `
   description: Detects kernel memory (kmem) errors in dmesg log
   fileTypeName: dmesg-log
   errorPattern: 'SLUB: Unable to allocate memory on node -1'
-  cure: 'Please see KB articles https://support.mesosphere.com/s/article/Critical-Issue-KMEM-MSPH-2018-0006 and https://support.mesosphere.com/s/article/Known-Issue-KMEM-with-Kubernetes-MSPH-2019-0002' 
+  cure: 'Please see KB articles https://support.d2iq/s/article/Critical-Issue-KMEM-MSPH-2018-0006 and https://support.d2iq/s/article/Known-Issue-KMEM-with-Kubernetes-MSPH-2019-0002' 
 
 - name: oom-kills
   description: Detects out of memory kills in dmesg log

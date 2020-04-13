@@ -139,7 +139,7 @@ func (d directory) ScanLines(t FileTypeName, f func(n int, line string) bool) (F
 	}
 	closeFunc := func() error {
 		if err := file.Close(); err != nil {
-			e := fmt.Sprintf("bun.directory.FindLine: Cannot close file %v with error: %v",
+			e := fmt.Sprintf("bun.bundle.ScanLines: Cannot close file %v with error: %v",
 				file.Name(), err)
 			if strings.HasSuffix(file.Name(), ".gz") {
 				e += fmt.Sprintf("The .gz file might be corrupted. Try to fix it with"+

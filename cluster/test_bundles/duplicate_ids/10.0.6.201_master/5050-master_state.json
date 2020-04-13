@@ -1,0 +1,513 @@
+{
+    "version": "1.9.1",
+    "git_sha": "d8f627f1eadb50f611cae634186200bc8ec15bda",
+    "build_date": "2019-11-23 00:00:34",
+    "build_time": 1574467234.0,
+    "build_user": "",
+    "start_time": 1576452102.4698071,
+    "elected_time": 1576452107.792428,
+    "id": "00efdea9-7551-4e15-83fe-5b8cd36d2216",
+    "pid": "master@10.0.5.2:5050",
+    "hostname": "10.0.5.2",
+    "capabilities": [
+        "AGENT_UPDATE",
+        "AGENT_DRAINING",
+        "QUOTA_V2"
+    ],
+    "activated_slaves": 5.0,
+    "deactivated_slaves": 0.0,
+    "unreachable_slaves": 0.0,
+    "domain": {
+        "fault_domain": {
+            "region": {
+                "name": "aws/us-west-2"
+            },
+            "zone": {
+                "name": "aws/us-west-2d"
+            }
+        }
+    },
+    "leader": "master@10.0.5.2:5050",
+    "leader_info": {
+        "id": "00efdea9-7551-4e15-83fe-5b8cd36d2216",
+        "pid": "master@10.0.5.2:5050",
+        "port": 5050,
+        "hostname": "10.0.5.2",
+        "domain": {
+            "fault_domain": {
+                "region": {
+                    "name": "aws/us-west-2"
+                },
+                "zone": {
+                    "name": "aws/us-west-2d"
+                }
+            }
+        }
+    },
+    "cluster": "adyatlov-5lzdc57",
+    "external_log_file": "/var/lib/dcos/mesos/log/mesos-master.log",
+    "flags": {
+        "agent_ping_timeout": "15secs",
+        "slave_removal_rate_limit": "100/1mins",
+        "agent_reregister_timeout": "10mins",
+        "allocation_interval": "1secs",
+        "allocator": "hierarchical",
+        "authenticate_agents": "false",
+        "authenticate_frameworks": "false",
+        "authenticate_http_frameworks": "false",
+        "authenticate_http_readonly": "true",
+        "authenticate_http_readwrite": "true",
+        "authentication_v0_timeout": "15secs",
+        "authenticators": "com_mesosphere_dcos_ClassicRPCAuthenticator",
+        "authorizers": "com_mesosphere_dcos_Authorizer",
+        "cluster": "adyatlov-5lzdc57",
+        "domain": "{\"fault_domain\":{\"region\":{\"name\":\"aws/us-west-2\"},\"zone\":{\"name\":\"aws/us-west-2d\"}}}",
+        "external_log_file": "/var/lib/dcos/mesos/log/mesos-master.log",
+        "fair_sharing_excluded_resource_names": "{ gpus }",
+        "filter_gpu_resources": "true",
+        "framework_sorter": "random",
+        "help": "false",
+        "hostname_lookup": "false",
+        "http_authenticators": "com_mesosphere_dcos_http_Authenticator",
+        "initialize_driver_logging": "true",
+        "ip_discovery_command": "/opt/mesosphere/bin/detect_ip",
+        "log_auto_initialize": "true",
+        "logbufsecs": "0",
+        "logging_level": "INFO",
+        "max_slave_ping_timeouts": "20",
+        "max_completed_frameworks": "50",
+        "max_completed_tasks_per_framework": "1000",
+        "max_operator_event_stream_subscribers": "1000",
+        "max_unreachable_tasks_per_framework": "1000",
+        "memory_profiling": "true",
+        "min_allocatable_resources": "cpus:0.01;mem:32;ports:1",
+        "modules_dir": "/opt/mesosphere/etc/mesos-master-modules",
+        "offer_timeout": "2mins",
+        "port": "5050",
+        "publish_per_framework_metrics": "true",
+        "quiet": "false",
+        "quorum": "2",
+        "recovery_agent_removal_limit": "100%",
+        "registry": "replicated_log",
+        "registry_fetch_timeout": "1mins",
+        "registry_gc_interval": "15mins",
+        "registry_max_agent_age": "2weeks",
+        "registry_max_agent_count": "102400",
+        "registry_store_timeout": "1mins",
+        "registry_strict": "false",
+        "require_agent_domain": "false",
+        "role_sorter": "random",
+        "root_submissions": "true",
+        "version": "false",
+        "webui_dir": "/opt/mesosphere/packages/mesos--328eb97437d273401c49c1a64b8be5f76843131a/share/mesos/webui",
+        "weights": "",
+        "work_dir": "/var/lib/dcos/mesos/master",
+        "zk": "/run/dcos/etc/mesos/master_zk_creds",
+        "zk_session_timeout": "10secs"
+    },
+    "slaves": [
+        {
+            "id": "00efdea9-7551-4e15-83fe-5b8cd36d2216-S4",
+            "hostname": "10.0.2.242",
+            "port": 5051,
+            "attributes": {},
+            "domain": {
+                "fault_domain": {
+                    "region": {
+                        "name": "aws/us-west-2"
+                    },
+                    "zone": {
+                        "name": "aws/us-west-2d"
+                    }
+                }
+            },
+            "pid": "slave(1)@10.0.2.242:5051",
+            "registered_time": 1576452139.997941,
+            "resources": {
+                "disk": 75853.0,
+                "mem": 6659.0,
+                "gpus": 0.0,
+                "cpus": 2.0,
+                "ports": "[1025-2180, 2182-3887, 3889-5049, 5052-8079, 8082-8180, 8182-32000]"
+            },
+            "used_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "offered_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "reserved_resources": {},
+            "unreserved_resources": {
+                "disk": 75853.0,
+                "mem": 6659.0,
+                "gpus": 0.0,
+                "cpus": 2.0,
+                "ports": "[1025-2180, 2182-3887, 3889-5049, 5052-8079, 8082-8180, 8182-32000]"
+            },
+            "active": true,
+            "deactivated": false,
+            "version": "1.9.1",
+            "capabilities": [
+                "MULTI_ROLE",
+                "HIERARCHICAL_ROLE",
+                "RESERVATION_REFINEMENT",
+                "RESOURCE_PROVIDER",
+                "RESIZE_VOLUME",
+                "AGENT_OPERATION_FEEDBACK",
+                "AGENT_DRAINING"
+            ]
+        },
+        {
+            "id": "00efdea9-7551-4e15-83fe-5b8cd36d2216-S3",
+            "hostname": "10.0.6.50",
+            "port": 5051,
+            "attributes": {
+                "public_ip": "true"
+            },
+            "domain": {
+                "fault_domain": {
+                    "region": {
+                        "name": "aws/us-west-2"
+                    },
+                    "zone": {
+                        "name": "aws/us-west-2d"
+                    }
+                }
+            },
+            "pid": "slave(1)@10.0.6.50:5051",
+            "registered_time": 1576452133.438564,
+            "resources": {
+                "disk": 75853.0,
+                "mem": 6659.0,
+                "gpus": 0.0,
+                "cpus": 2.0,
+                "ports": "[1-21, 23-5050, 5052-32000]"
+            },
+            "used_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "offered_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "reserved_resources": {
+                "slave_public": {
+                    "disk": 75853.0,
+                    "mem": 6659.0,
+                    "gpus": 0.0,
+                    "cpus": 2.0,
+                    "ports": "[1-21, 23-5050, 5052-32000]"
+                }
+            },
+            "unreserved_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "active": true,
+            "deactivated": false,
+            "version": "1.9.1",
+            "capabilities": [
+                "MULTI_ROLE",
+                "HIERARCHICAL_ROLE",
+                "RESERVATION_REFINEMENT",
+                "RESOURCE_PROVIDER",
+                "RESIZE_VOLUME",
+                "AGENT_OPERATION_FEEDBACK",
+                "AGENT_DRAINING"
+            ]
+        },
+        {
+            "id": "00efdea9-7551-4e15-83fe-5b8cd36d2216-S2",
+            "hostname": "10.0.6.64",
+            "port": 5051,
+            "attributes": {
+                "public_ip": "true"
+            },
+            "domain": {
+                "fault_domain": {
+                    "region": {
+                        "name": "aws/us-west-2"
+                    },
+                    "zone": {
+                        "name": "aws/us-west-2d"
+                    }
+                }
+            },
+            "pid": "slave(1)@10.0.6.64:5051",
+            "registered_time": 1576452129.3131452,
+            "resources": {
+                "disk": 75853.0,
+                "mem": 6659.0,
+                "gpus": 0.0,
+                "cpus": 2.0,
+                "ports": "[1-21, 23-5050, 5052-32000]"
+            },
+            "used_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "offered_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "reserved_resources": {
+                "slave_public": {
+                    "disk": 75853.0,
+                    "mem": 6659.0,
+                    "gpus": 0.0,
+                    "cpus": 2.0,
+                    "ports": "[1-21, 23-5050, 5052-32000]"
+                }
+            },
+            "unreserved_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "active": true,
+            "deactivated": false,
+            "version": "1.9.1",
+            "capabilities": [
+                "MULTI_ROLE",
+                "HIERARCHICAL_ROLE",
+                "RESERVATION_REFINEMENT",
+                "RESOURCE_PROVIDER",
+                "RESIZE_VOLUME",
+                "AGENT_OPERATION_FEEDBACK",
+                "AGENT_DRAINING"
+            ]
+        },
+        {
+            "id": "00efdea9-7551-4e15-83fe-5b8cd36d2216-S1",
+            "hostname": "10.0.0.231",
+            "port": 5051,
+            "attributes": {},
+            "domain": {
+                "fault_domain": {
+                    "region": {
+                        "name": "aws/us-west-2"
+                    },
+                    "zone": {
+                        "name": "aws/us-west-2d"
+                    }
+                }
+            },
+            "pid": "slave(1)@10.0.0.231:5051",
+            "registered_time": 1576452128.4127412,
+            "resources": {
+                "disk": 75853.0,
+                "mem": 6659.0,
+                "gpus": 0.0,
+                "cpus": 2.0,
+                "ports": "[1025-2180, 2182-3887, 3889-5049, 5052-8079, 8082-8180, 8182-32000]"
+            },
+            "used_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "offered_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "reserved_resources": {},
+            "unreserved_resources": {
+                "disk": 75853.0,
+                "mem": 6659.0,
+                "gpus": 0.0,
+                "cpus": 2.0,
+                "ports": "[1025-2180, 2182-3887, 3889-5049, 5052-8079, 8082-8180, 8182-32000]"
+            },
+            "active": true,
+            "deactivated": false,
+            "version": "1.9.1",
+            "capabilities": [
+                "MULTI_ROLE",
+                "HIERARCHICAL_ROLE",
+                "RESERVATION_REFINEMENT",
+                "RESOURCE_PROVIDER",
+                "RESIZE_VOLUME",
+                "AGENT_OPERATION_FEEDBACK",
+                "AGENT_DRAINING"
+            ]
+        },
+        {
+            "id": "00efdea9-7551-4e15-83fe-5b8cd36d2216-S0",
+            "hostname": "10.0.3.6",
+            "port": 5051,
+            "attributes": {},
+            "domain": {
+                "fault_domain": {
+                    "region": {
+                        "name": "aws/us-west-2"
+                    },
+                    "zone": {
+                        "name": "aws/us-west-2d"
+                    }
+                }
+            },
+            "pid": "slave(1)@10.0.3.6:5051",
+            "registered_time": 1576452127.295715,
+            "resources": {
+                "disk": 75853.0,
+                "mem": 6659.0,
+                "gpus": 0.0,
+                "cpus": 2.0,
+                "ports": "[1025-2180, 2182-3887, 3889-5049, 5052-8079, 8082-8180, 8182-32000]"
+            },
+            "used_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "offered_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "reserved_resources": {},
+            "unreserved_resources": {
+                "disk": 75853.0,
+                "mem": 6659.0,
+                "gpus": 0.0,
+                "cpus": 2.0,
+                "ports": "[1025-2180, 2182-3887, 3889-5049, 5052-8079, 8082-8180, 8182-32000]"
+            },
+            "active": true,
+            "deactivated": false,
+            "version": "1.9.1",
+            "capabilities": [
+                "MULTI_ROLE",
+                "HIERARCHICAL_ROLE",
+                "RESERVATION_REFINEMENT",
+                "RESOURCE_PROVIDER",
+                "RESIZE_VOLUME",
+                "AGENT_OPERATION_FEEDBACK",
+                "AGENT_DRAINING"
+            ]
+        }
+    ],
+    "recovered_slaves": [],
+    "frameworks": [
+        {
+            "id": "00efdea9-7551-4e15-83fe-5b8cd36d2216-0001",
+            "name": "metronome",
+            "pid": "scheduler-7c776c29-996c-4d02-8513-8603e8d81039@10.0.6.201:15201",
+            "used_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "offered_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "capabilities": [
+                "GPU_RESOURCES",
+                "PARTITION_AWARE",
+                "REGION_AWARE"
+            ],
+            "hostname": "10.0.6.201",
+            "webui_url": "http://10.0.6.201:9090",
+            "active": true,
+            "connected": true,
+            "recovered": false,
+            "user": "root",
+            "failover_timeout": 604800000.0,
+            "checkpoint": true,
+            "registered_time": 1576452140.2838001,
+            "unregistered_time": 0.0,
+            "principal": "dcos_metronome",
+            "resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "role": "*",
+            "tasks": [],
+            "unreachable_tasks": [],
+            "completed_tasks": [],
+            "offers": [],
+            "executors": []
+        },
+        {
+            "id": "00efdea9-7551-4e15-83fe-5b8cd36d2216-0000",
+            "name": "marathon",
+            "pid": "scheduler-445367e9-e3fa-4a68-97f4-8d26e2c2dc0f@10.0.6.201:15101",
+            "used_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "offered_resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "capabilities": [
+                "TASK_KILLING_STATE",
+                "GPU_RESOURCES",
+                "PARTITION_AWARE",
+                "REGION_AWARE",
+                "MULTI_ROLE"
+            ],
+            "hostname": "10.0.6.201",
+            "webui_url": "https://10.0.6.201:8443",
+            "active": true,
+            "connected": true,
+            "recovered": false,
+            "user": "root",
+            "failover_timeout": 604800.0,
+            "checkpoint": true,
+            "registered_time": 1576452131.008822,
+            "unregistered_time": 0.0,
+            "principal": "dcos_marathon",
+            "resources": {
+                "disk": 0.0,
+                "mem": 0.0,
+                "gpus": 0.0,
+                "cpus": 0.0
+            },
+            "roles": [
+                "slave_public"
+            ],
+            "tasks": [],
+            "unreachable_tasks": [],
+            "completed_tasks": [],
+            "offers": [],
+            "executors": []
+        }
+    ],
+    "completed_frameworks": [],
+    "orphan_tasks": [],
+    "unregistered_frameworks": []
+}

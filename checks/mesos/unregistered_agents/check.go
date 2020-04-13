@@ -1,31 +1,36 @@
 package unregisteredagents
 
 import (
-	"fmt"
+	"github.com/mesosphere/bun/v2/cluster"
 
+	"github.com/lithammer/dedent"
 	"github.com/mesosphere/bun/v2/bundle"
 	"github.com/mesosphere/bun/v2/checks"
 )
 
-func init() {
-	builder := checks.CheckFuncBuilder{CheckMasters: collect}
+const strAgentInactive = "Mesos agent appears to be registered but inactive"
+const strMesosAgentRecovered = "Mesos agent was unregistered and recovered"
 
+func init() {
 	check := checks.Check{
-		Name:           "mesos-unregistered-agents",
-		Description:    "Checks for unregistered Mesos agents",
-		Cure:           "Determine why Mesos agents cannot register by examining the Mesos agent log.",
+		Name:        "mesos-unregistered-agents",
+		Description: "Checks for unregistered Mesos agents",
+		Cure: dedent.Dedent(`
+			Determine why Mesos agents cannot register by examining the Mesos agent log.
+			In order to register an agent needs to have finished its recovery, have detected the master, and be able to connect to it.`),
 		OKSummary:      "All Mesos agents appear to be registered.",
 		ProblemSummary: "Some Mesos agents appear to be unregistered.",
-		Run:            builder.Build(),
+		Run:            check,
 	}
-
 	checks.RegisterCheck(check)
 }
 
 type slave struct {
-	PID         string `json:"pid"`
-	Active      bool   `json:"active"`
-	Deactivated bool   `json:"deactivated"`
+	PID         string                 `json:"pid"`
+	Active      bool                   `json:"active"`
+	Deactivated bool                   `json:"deactivated"`
+	HostName    string                 `json:"hostname"`
+	Attributes  map[string]interface{} `json:"attributes"`
 }
 
 type state struct {
@@ -33,36 +38,49 @@ type state struct {
 	RecoveredSlaves []slave `json:"recovered_slaves"`
 }
 
-func collect(host bundle.Host) checks.Result {
-	var state state
-
-	if err := host.ReadJSON("mesos-master-state", &state); err != nil {
-		return checks.Result{
-			Status: checks.SUndefined,
-			Value:  err,
-		}
+func check(b bundle.Bundle) checks.Results {
+	c := cluster.New(b)
+	leader, err := c.MesosLeader()
+	if err != nil {
+		return checks.Results{{Status: checks.SUndefined, Value: err}}
 	}
-
-	var unregistered []string
-	for _, slave := range state.Slaves {
+	var s state
+	if err := leader.Host.ReadJSON("mesos-master-state", &s); err != nil {
+		return checks.Results{{Status: checks.SUndefined, Value: err}}
+	}
+	var unregistered []checks.Result
+	for _, slave := range s.Slaves {
 		if !slave.Active && !slave.Deactivated {
-			unregistered = append(unregistered, fmt.Sprintf("(Mesos) %v appears to be registered but inactive", slave.PID))
+			var agent bundle.Host
+			agent.IP = bundle.IP(slave.HostName)
+			agent.Type = bundle.DTAgent
+			if v := slave.Attributes["public_ip"]; v == "true" {
+				agent.Type = bundle.DTPublicAgent
+			}
+			res := checks.Result{
+				Status: checks.SProblem,
+				Value:  strAgentInactive,
+				Host:   agent,
+			}
+			unregistered = append(unregistered, res)
 		}
 	}
-
-	for _, slave := range state.RecoveredSlaves {
-		unregistered = append(unregistered, fmt.Sprintf("(Mesos) %v appears unregistered", slave.PID))
-	}
-
-	if len(unregistered) > 0 {
-		return checks.Result{
-			Host:   host,
+	for _, slave := range s.RecoveredSlaves {
+		var agent bundle.Host
+		agent.IP = bundle.IP(slave.HostName)
+		agent.Type = bundle.DTAgent
+		if v := slave.Attributes["public_ip"]; v == "true" {
+			agent.Type = bundle.DTPublicAgent
+		}
+		res := checks.Result{
 			Status: checks.SProblem,
-			Value:  unregistered,
+			Value:  strMesosAgentRecovered,
+			Host:   agent,
 		}
+		unregistered = append(unregistered, res)
 	}
-
-	return checks.Result{
-		Status: checks.SOK,
+	if len(unregistered) > 0 {
+		return unregistered
 	}
+	return checks.Results{{Status: checks.SOK}}
 }

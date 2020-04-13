@@ -41,9 +41,9 @@ func (r Result) IsHostSet() bool {
 
 type Results []Result
 
-func (d Results) filter(status Status) Results {
-	results := make([]Result, 0, len(d))
-	for _, result := range d {
+func (r Results) filter(status Status) Results {
+	results := make([]Result, 0, len(r))
+	for _, result := range r {
 		if result.Status == status {
 			results = append(results, result)
 		}
@@ -51,23 +51,23 @@ func (d Results) filter(status Status) Results {
 	return results
 }
 
-func (d Results) Problems() Results {
-	return d.filter(SProblem)
+func (r Results) Problems() Results {
+	return r.filter(SProblem)
 }
 
-func (d Results) Undefined() Results {
-	return d.filter(SUndefined)
+func (r Results) Undefined() Results {
+	return r.filter(SUndefined)
 }
 
-func (d Results) OKs() Results {
-	return d.filter(SOK)
+func (r Results) OKs() Results {
+	return r.filter(SOK)
 }
 
-func (d Results) Status() Status {
-	if len(d.Problems()) > 0 {
+func (r Results) Status() Status {
+	if len(r.Problems()) > 0 {
 		return SProblem
 	}
-	if len(d.Undefined()) > 0 {
+	if len(r.Undefined()) > 0 {
 		return SUndefined
 	}
 	return SOK

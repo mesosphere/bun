@@ -73,7 +73,7 @@ func preRun(_ *cobra.Command, _ []string) {
 	if currentBundle != nil {
 		return
 	}
-	b, err := bundle.NewBundle(bundlePath)
+	b, err := bundle.New(bundlePath)
 	if err != nil {
 		fmt.Printf("Cannot open a bundle: %v\n", err.Error())
 		os.Exit(1)

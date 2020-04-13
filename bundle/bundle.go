@@ -44,14 +44,14 @@ func (b Bundle) filter(t DirType) (hosts []Host) {
 
 const hostRegexp = `^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))_(agent_public|agent|master)$`
 
-// NewBundle creates new Bundle
-func NewBundle(path string) (Bundle, error) {
+// New creates new Bundle
+func New(path string) (Bundle, error) {
 	b := Bundle{}
 	var err error
 	b.Type = DTRoot
 	b.Path, err = filepath.Abs(path)
 	if err != nil {
-		log.Printf("bun.NewBundle: cannot determine absolute path: %v", err)
+		log.Printf("bun.New: cannot determine absolute path: %v", err)
 		return b, err
 	}
 	infos, err := ioutil.ReadDir(b.Path)
