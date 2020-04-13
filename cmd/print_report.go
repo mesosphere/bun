@@ -8,8 +8,9 @@ import (
 	"github.com/mitchellh/go-wordwrap"
 
 	"github.com/logrusorgru/aurora"
-	"github.com/mesosphere/bun/v2/checks"
 	"github.com/olekukonko/tablewriter"
+
+	"github.com/mesosphere/bun/v2/checks"
 )
 
 // MsgErr is a standard message used in the check summary when errors

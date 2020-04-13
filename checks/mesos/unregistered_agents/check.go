@@ -1,11 +1,11 @@
 package unregisteredagents
 
 import (
-	"github.com/mesosphere/bun/v2/cluster"
-
 	"github.com/lithammer/dedent"
+
 	"github.com/mesosphere/bun/v2/bundle"
 	"github.com/mesosphere/bun/v2/checks"
+	"github.com/mesosphere/bun/v2/cluster"
 )
 
 const strAgentInactive = "Mesos agent appears to be registered but inactive"

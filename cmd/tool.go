@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mesosphere/bun/v2/tools"
 	"github.com/spf13/cobra"
 	yaml "gopkg.in/yaml.v2"
+
+	"github.com/mesosphere/bun/v2/tools"
 )
 
 var toolCmd = &cobra.Command{
