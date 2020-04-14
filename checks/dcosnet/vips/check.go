@@ -3,8 +3,6 @@ package unregisteredagents
 import (
 	"fmt"
 
-	"github.com/lithammer/dedent"
-
 	"github.com/mesosphere/bun/v2/bundle"
 	"github.com/mesosphere/bun/v2/checks"
 )
@@ -19,12 +17,10 @@ func init() {
 
 	check := checks.Check{
 		Name: "dcosnet-vips",
-		Description: dedent.Dedent(`
-			Checks if for every VIP in the cluster there is a corresponding container
-			in running state. It also implicitly checks if the mesos and VIP states
-			are synchronized.`),
-		Cure: dedent.Dedent(`Most probably, the cluster affected by MESOS-9868. 
-			Please upgrade to 1.12.5 or later and restart the affected tasks.`),
+		Description: "Checks if for every VIP in the cluster there is a corresponding container in running state. " +
+			"It also implicitly checks if the mesos and VIP states are synchronized.",
+		Cure: "Most probably, the cluster affected by MESOS-9868. " +
+			"Please upgrade to 1.12.5 or later and restart the affected tasks.",
 		OKSummary:      "All VIPs have a corresponding live backends",
 		ProblemSummary: "Some VIPs do not have a corresponding live backend",
 		Run:            builder.Build(),
