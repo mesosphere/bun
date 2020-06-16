@@ -4,7 +4,7 @@ import (
 	"github.com/mesosphere/bun/v2/cmd"
 )
 
-// Populated by GoReleaser
+// GoReleaser populates these vars.
 var (
 	version = "dev"
 	commit  = "none"

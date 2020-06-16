@@ -41,13 +41,13 @@ func findFiles(cmd *cobra.Command, args []string) {
 
 func init() {
 	rootCmd.AddCommand(toolCmd)
-	var cmd = &cobra.Command{
+	var findFileCmd = &cobra.Command{
 		Use:   "find-files",
 		Short: "Finds all file types in a given bundle",
 		Long: "Finds all file types in a given bundle, suggests names, and" +
 			" renders it in a YAML format to the stdout.",
 		Run: findFiles,
 	}
-	cmd.Flags().BoolP("escape", "e", false, "Escape back ticks for using in the files_yaml.go")
-	toolCmd.AddCommand(cmd)
+	findFileCmd.Flags().BoolP("escape", "e", false, "Escape back ticks for using in the files_yaml.go")
+	toolCmd.AddCommand(findFileCmd)
 }
