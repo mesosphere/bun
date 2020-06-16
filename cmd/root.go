@@ -25,6 +25,8 @@ var rootCmd = &cobra.Command{
 		"and searches for some common problems of the DC/OS cluster.\n" +
 		"\nSpecify a sub-command to run a specific check, e.g. `bun health`\n" +
 		"or run all the available checks by not specifying any, i.e. `bun`.\n" +
+		"\n**** NOTE **** \n" +
+		"Bun is NOT SUPPORTED and supplied 'as is'.  It can and does produce 'false positive' messages\n" +
 		"\nMore information is available at https://github.com/mesosphere/bun",
 	PreRun: preRun,
 	Run:    runCheck,
