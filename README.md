@@ -1,16 +1,12 @@
 # Bun
 
+:warning: **Please note that D2iQ supplies Bun "as is" and does not support it.
+We created this tool for D2iQ development and support teams to surfaces potential errors or
+misconfigurations for further analysis by trained individuals.
+As such, it can and does produce false-positive results.**
+
 Command-line program which detects the most common problems in a DC/OS cluster
 by analyzing its [diagnostics bundle](https://docs.mesosphere.com/1.11/cli/command-reference/dcos-node/dcos-node-diagnostics-create/).
-
-## PLEASE NOTE
-Bun is unsupported, and is supplied 'as is'.
-
-It is primarily intended for use by D2iQ development and support teams.
-It surfaces 'potential' errors or misconfigurations for further analysis by trained individuals.
-As such, it can, and does, produce 'false positive' messages.
-
-## Bun
 
 ```
 $ bun
@@ -146,12 +142,12 @@ The core abstraction of the Bun tool is `checks.Check`:
 package checks
 
 type Check struct {
-	Name           string
+	Name           string 
 	Description    string
 	Cure           string
 	OKSummary      string
 	ProblemSummary string
-	Run            CheckBundleFunc
+	Run            CheckBundleFunc 
 }
 
 type CheckBundleFunc func(bundle.Bundle) Results
@@ -164,19 +160,19 @@ type Result struct {
 ```
 
 To add a new check you need to create an instance of that struct, describe the check by specifying its string fields,
-and provide a Run function, which does actual testing.
+and provide a Run function, which does actual testing. 
 
 To make adding checks easier, Bun provides some help; for example,
-you can declare checks as a YAML object, or use the `CheckFuncBuilder` struct
+you can declare checks as a YAML object, or use the `CheckFuncBuilder` struct 
 to simplify creation of the `Cehck.Run` function. Please. see the next sections for the details.
 
 #### Search check
 
-Search checks are looking for a specified strings or regular expressions in a bundle file to detect or rule out a
-specific problem. Also, search checks is very easy to add -- you don't even need to write a code.
+Search checks are looking for a specified strings or regular expressions in a bundle file to detect or rule out a 
+specific problem. Also, search checks is very easy to add -- you don't even need to write a code. 
 
 To create a new search check, simply add a new object to the YAML document in the
-`checks/search_checks_yaml.go` file. For example:
+`checks/search_checks_yaml.go` file. For example: 
 
 ```yaml
 - name: exhibitor-disk-space
@@ -187,7 +183,7 @@ To create a new search check, simply add a new object to the YAML document in th
 ```
 
 To avoid false positives, you can specify a a string or regular expression, which manifests that the
-problem is gone. For example, the following check will not fail if the string "Time is in sync" appears
+problem is gone. For example, the following check will not fail if the string "Time is in sync" appears 
 in the networking log after the last "Checks if time is synchronised on the host machine." message.
 
 ```yaml
@@ -202,7 +198,7 @@ in the networking log after the last "Checks if time is synchronised on the host
 
 #### Check a condition on each node of a certain type
 
-If you need to check that a certain condition is satisfied on each DC/OS node of a given type (i.e.: master, agent, or public agent), you can
+If you need to check that a certain condition is satisfied on each DC/OS node of a given type (i.e.: master, agent, or public agent), you can 
 use the `checks.CheckFuncBuilder`. With its help, you only need to create a function which checks for the condition on
 one node. The builder will do the rest. For example, the following check detects a situation when Mesos mailboxes have
 too many messages:

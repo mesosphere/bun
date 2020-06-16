@@ -21,15 +21,19 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "bun",
 	Short: "DC/OS diagnostics bundle analysis tool",
-	Long: "Bun extracts useful facts from hundreds of files in the DC/OS diagnostics bundle\n" +
+	Long: "***********************************************************************************************\n" +
+		"* Please note that D2iQ supplies Bun \"as is\" and does not support it.                         *\n" +
+		"* We created this tool for D2iQ development and support teams to surfaces potential errors or *\n" +
+		"* misconfigurations for further analysis by trained individuals.                              *\n" +
+		"* As such, it can and does produce false-positive results.                                    *\n" +
+		"***********************************************************************************************\n\n" +
+
+		"Bun extracts useful facts from hundreds of files in the DC/OS diagnostics bundle\n" +
 		"and searches for some common problems of the DC/OS cluster.\n" +
 		"\nSpecify a sub-command to run a specific check, e.g. `bun health`\n" +
 		"or run all the available checks by not specifying any, i.e. `bun`.\n" +
-		"\n**** NOTE **** \n" +
-		"Bun is NOT SUPPORTED and supplied 'as is'.  It can and does produce 'false positive' messages\n" +
-		"\nMore information is available at https://github.com/mesosphere/bun",
-	PreRun: preRun,
-	Run:    runCheck,
+		"PreRun: preRun,\n" +
+		"Run:    runCheck,\n",
 }
 
 var checkCmd = &cobra.Command{
