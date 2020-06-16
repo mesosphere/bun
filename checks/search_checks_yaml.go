@@ -107,5 +107,11 @@ const searchChecksYAML = `
   fileTypeName: dmesg-log
   errorPattern: 'task .+ blocked for more than .+ seconds'
   isErrorPatternRegexp: true
-  cure: 'Please, see this article for more information: https://helpful.knobs-dials.com/index.php/INFO:_task_blocked_for_more_than_120_seconds.' 
+  cure: 'Please see this article for more information: https://helpful.knobs-dials.com/index.php/INFO:_task_blocked_for_more_than_120_seconds'
+
+- name: overlay-ip-pool
+  description: Detects if Mesos Overlay module exhausted its IP address pool
+  fileTypeName: mesos-master-log
+  errorPattern: 'Unable to reserve VTEP'
+  cure: 'Please see this article for more information: https://support.d2iq.com/s/article/What-to-do-if-the-DC-OS-Overlay-IP-pool-is-exhausted'
 `
