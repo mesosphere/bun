@@ -31,9 +31,9 @@ var rootCmd = &cobra.Command{
 		"Bun extracts useful facts from hundreds of files in the DC/OS diagnostics bundle\n" +
 		"and searches for some common problems of the DC/OS cluster.\n" +
 		"\nSpecify a sub-command to run a specific check, e.g. `bun health`\n" +
-		"or run all the available checks by not specifying any, i.e. `bun`.\n" +
-		"PreRun: preRun,\n" +
-		"Run:    runCheck,\n",
+		"or run all the available checks by not specifying any, i.e. `bun`.\n",
+	PreRun: preRun,
+	Run:    runCheck,
 }
 
 var checkCmd = &cobra.Command{
