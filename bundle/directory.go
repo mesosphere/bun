@@ -28,7 +28,7 @@ const (
 	DTPublicAgent = "public agent"
 )
 
-type directory struct {
+type Directory struct {
 	Type DirType
 	Path string
 }
@@ -64,7 +64,7 @@ type File interface {
 // If the file is not found, it tries to open it from a correspondent .gzip archive.
 // If the .gzip archive is not found as well then returns an error.
 // Caller is responsible for closing the file.
-func (d directory) OpenFile(typeName FileTypeName) (File, error) {
+func (d Directory) OpenFile(typeName FileTypeName) (File, error) {
 	fileType := GetFileType(typeName)
 	ok := false
 	for _, dirType := range fileType.DirTypes {
@@ -111,7 +111,7 @@ func (d directory) OpenFile(typeName FileTypeName) (File, error) {
 
 // ReadJSON reads JSON-encoded data from the bundle file and stores the result in
 // the value pointed to by v.
-func (d directory) ReadJSON(typeName FileTypeName, v interface{}) error {
+func (d Directory) ReadJSON(typeName FileTypeName, v interface{}) error {
 	fileType := GetFileType(typeName)
 	if fileType.ContentType != CTJson {
 		panic(fmt.Sprintf("Content of the %v file is not JSON", typeName))
@@ -132,7 +132,7 @@ func (d directory) ReadJSON(typeName FileTypeName, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
 
-func (d directory) ScanLines(t FileTypeName, f func(n int, line string) bool) (File, error) {
+func (d Directory) ScanLines(t FileTypeName, f func(n int, line string) bool) (File, error) {
 	file, err := d.OpenFile(t)
 	if err != nil {
 		return nil, err

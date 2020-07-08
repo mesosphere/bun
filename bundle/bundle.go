@@ -14,7 +14,7 @@ const hostRegexp = `^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0
 // Host represents a host in a DC/OS cluster.
 type Host struct {
 	IP IP
-	directory
+	Directory
 }
 
 type IP string
@@ -22,7 +22,7 @@ type IP string
 // Bundle describes DC/OS diagnostics bundle.
 type Bundle struct {
 	Hosts []Host
-	directory
+	Directory
 }
 
 // New creates new Bundle
@@ -101,19 +101,24 @@ func (b Bundle) filter(t DirType) (hosts []Host) {
 // ForEachFile finds all the files of a given type and pass them one by one to the do function.
 // It stops if the do function returns true.
 func (b Bundle) ForEachFile(fileTypeName FileTypeName, do func(f File) (stop bool)) {
+	f := func(d Directory) bool {
+		if f, err := d.OpenFile(fileTypeName); err == nil {
+			return do(f)
+		}
+	}
+	b.ForEachDirectory(fileTypeName, f)
+}
+
+func (b Bundle) ForEachDirectory(fileTypeName FileTypeName, do func(d Directory) (stop bool)) {
 	if t := GetFileType(fileTypeName); t.ExistsOn(b.Type) {
-		if f, err := b.OpenFile(t.Name); err == nil {
-			if do(f) {
-				return
-			}
+		if do(b.Directory) {
+			return
 		}
 	}
 	for _, host := range b.Hosts {
 		if t := GetFileType(fileTypeName); t.ExistsOn(host.Type) {
-			if f, err := host.OpenFile(t.Name); err == nil {
-				if do(f) {
-					return
-				}
+			if do(host.Directory) {
+				return
 			}
 		}
 	}
