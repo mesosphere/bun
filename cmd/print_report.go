@@ -138,9 +138,9 @@ func printSummary(results []checks.Results) {
 	}
 	var data tableData = make([][]string, 0, 4)
 	data.appendBulk([][]string{
-		{au.Bold("Failed").String(), strconv.Itoa(nP)},
+		{au.Bold("Problem").String(), strconv.Itoa(nP)},
 		{au.Bold("Undefined").String(), strconv.Itoa(nU)},
-		{au.Bold("Passed").String(), strconv.Itoa(nOK)},
+		{au.Bold("OK").String(), strconv.Itoa(nOK)},
 	})
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Summary", ""})

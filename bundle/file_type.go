@@ -34,6 +34,15 @@ type FileType struct {
 	DirTypes []DirType `yaml:"dirTypes"`
 }
 
+func (t FileType) ExistsOn(dirType DirType) bool {
+	for _, dt := range t.DirTypes {
+		if dt == dirType {
+			return true
+		}
+	}
+	return false
+}
+
 var (
 	fileTypes   = make(map[FileTypeName]FileType)
 	fileTypesMu sync.RWMutex

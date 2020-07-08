@@ -9,6 +9,8 @@ import (
 	"regexp"
 )
 
+const hostRegexp = `^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))_(agent_public|agent|master)$`
+
 // Host represents a host in a DC/OS cluster.
 type Host struct {
 	IP IP
@@ -22,27 +24,6 @@ type Bundle struct {
 	Hosts []Host
 	directory
 }
-
-func (b Bundle) Masters() []Host {
-	return b.filter(DTMaster)
-}
-func (b Bundle) Agents() []Host {
-	return b.filter(DTAgent)
-}
-func (b Bundle) PublicAgents() []Host {
-	return b.filter(DTPublicAgent)
-}
-func (b Bundle) filter(t DirType) (hosts []Host) {
-	hosts = make([]Host, 0, len(b.Hosts))
-	for _, host := range b.Hosts {
-		if host.Type == t {
-			hosts = append(hosts, host)
-		}
-	}
-	return
-}
-
-const hostRegexp = `^((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))_(agent_public|agent|master)$`
 
 // New creates new Bundle
 func New(path string) (Bundle, error) {
@@ -93,4 +74,47 @@ func New(path string) (Bundle, error) {
 		}
 	}
 	return b, nil
+}
+
+func (b Bundle) Masters() []Host {
+	return b.filter(DTMaster)
+}
+
+func (b Bundle) Agents() []Host {
+	return b.filter(DTAgent)
+}
+
+func (b Bundle) PublicAgents() []Host {
+	return b.filter(DTPublicAgent)
+}
+
+func (b Bundle) filter(t DirType) (hosts []Host) {
+	hosts = make([]Host, 0, len(b.Hosts))
+	for _, host := range b.Hosts {
+		if host.Type == t {
+			hosts = append(hosts, host)
+		}
+	}
+	return
+}
+
+// ForEachFile finds all the files of a given type and pass them one by one to the do function.
+// It stops if the do function returns true.
+func (b Bundle) ForEachFile(fileTypeName FileTypeName, do func(f File) (stop bool)) {
+	if t := GetFileType(fileTypeName); t.ExistsOn(b.Type) {
+		if f, err := b.OpenFile(t.Name); err == nil {
+			if do(f) {
+				return
+			}
+		}
+	}
+	for _, host := range b.Hosts {
+		if t := GetFileType(fileTypeName); t.ExistsOn(host.Type) {
+			if f, err := host.OpenFile(t.Name); err == nil {
+				if do(f) {
+					return
+				}
+			}
+		}
+	}
 }
