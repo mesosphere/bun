@@ -105,6 +105,7 @@ func (b Bundle) ForEachFile(fileTypeName FileTypeName, do func(f File) (stop boo
 		if f, err := d.OpenFile(fileTypeName); err == nil {
 			return do(f)
 		}
+		return false
 	}
 	b.ForEachDirectory(fileTypeName, f)
 }
