@@ -599,6 +599,14 @@ const filesYAML = `
   - master
   - agent
   - public agent
+- name: mesos-agent-containerizer-debug
+  contentType: JSON
+  paths:
+  - 5051-containerizer_debug.json
+  description: "Returns a list of pending operations related to Mesos containerizer."
+  dirTypes:
+  - agent
+  - public agent
 - name: mesos-agent-var-log
   contentType: other
   paths:
