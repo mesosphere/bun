@@ -110,6 +110,8 @@ func (b Bundle) ForEachFile(fileTypeName FileTypeName, do func(f File) (stop boo
 	b.ForEachDirectory(fileTypeName, f)
 }
 
+// ForEachDirectory finds all the bundle directories of a given type and pass them one by one to the do function.
+// It stops if the do function returns true.
 func (b Bundle) ForEachDirectory(fileTypeName FileTypeName, do func(d Directory) (stop bool)) {
 	if t := GetFileType(fileTypeName); t.ExistsOn(b.Type) {
 		if do(b.Directory) {
