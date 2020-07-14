@@ -97,7 +97,7 @@ func runCheck(_ *cobra.Command, _ []string) {
 	for _, check := range c {
 		results := check.Run(*currentBundle)
 		allResults = append(allResults, results)
-		printReport(check, results, false)
+		printReport(check, results, verbose)
 		if results.Status() != checks.SOK {
 			ok = false
 		}

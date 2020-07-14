@@ -16,13 +16,13 @@ import (
 // MsgErr is a standard message used in the check summary when errors
 // occurs during the check.
 
-func printReport(c checks.Check, r checks.Results, showOK bool) {
+func printReport(c checks.Check, r checks.Results, verbose bool) {
 	au := aurora.NewAurora(useColors())
 	var status string
 	var summary string
 	switch r.Status() {
 	case checks.SOK:
-		if !verbose && !showOK {
+		if !verbose {
 			return
 		}
 		status = au.Bold(au.Green("[" + r.Status() + "]")).String()
@@ -34,16 +34,15 @@ func printReport(c checks.Check, r checks.Results, showOK bool) {
 			summary += "\n" + "Couldn't check all hosts. See details below."
 		}
 	case checks.SUndefined:
+		if !verbose {
+			return
+		}
 		status = au.Bold(au.Yellow("[" + r.Status() + "]")).String()
 		if len(r.OKs()) == 0 {
 			summary = "Couldn't check any hosts because of the error(s)."
 		} else {
-			summary = "Couldn't check some hosts because of the error(s)."
-		}
-		if !verbose {
-			summary += " Launch this check with the -v flag to see the details."
-		} else {
-			summary += " Please find the details below."
+			summary = "Couldn't check some hosts because of the error(s)." +
+				" Please find the details below."
 		}
 	default:
 		panic("Unknown status: " + r.Status())
@@ -58,12 +57,8 @@ func printReport(c checks.Check, r checks.Results, showOK bool) {
 		data.append([]string{au.Bold("Cure").String(), c.Cure})
 	}
 	data.append([]string{au.Bold("Summary").String(), summary})
-	if r.Status() == checks.SProblem {
-		data.appendBulk(resultsData(r.Problems()))
-		data.appendBulk(resultsData(r.Undefined()))
-	} else if r.Status() == checks.SUndefined && verbose {
-		data.appendBulk(resultsData(r.Undefined()))
-	}
+	data.appendBulk(resultsData(r.Problems()))
+	data.appendBulk(resultsData(r.Undefined()))
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetAutoMergeCells(true)
 	table.SetRowLine(true)
