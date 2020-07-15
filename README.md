@@ -1,7 +1,7 @@
 # Bun
 
 :warning: **Please note that D2iQ supplies Bun "as is" and does not support it.
-We created this tool for D2iQ development and support teams to surfaces potential errors or
+We created this tool for internal D2iQ development and support teams to surfaces potential errors or
 misconfigurations for further analysis by trained individuals.
 As such, it can and does produce false-positive results.**
 
