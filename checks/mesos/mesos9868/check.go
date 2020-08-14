@@ -170,7 +170,7 @@ func aggregate(r checks.Results) checks.Results {
 				checks.Result{
 					Status: checks.SProblem,
 					Host:   *ips.ContainerAgent,
-					Value: fmt.Sprintf("Container %s: appers to have a container network assigned (%s), but this is not reflected on mesos state.",
+					Value: fmt.Sprintf("Container %s: appears to have a container network assigned (%s), but this is not reflected on mesos state.",
 						container, strings.Join(ips.ContainerIPs, ", "))})
 			continue
 		}
