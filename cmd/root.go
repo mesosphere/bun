@@ -75,7 +75,7 @@ func init() {
 	rootCmd.AddCommand(checkCmd)
 }
 
-func preRun(_ *cobra.Command, _ []string) {
+func preRun(*cobra.Command, []string) {
 	if currentBundle != nil {
 		return
 	}
