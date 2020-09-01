@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/mesosphere/bun/v2/bundle"
@@ -23,7 +24,7 @@ func ToCSV(b *bundle.Bundle, writer io.Writer) error {
 			}
 			w := csv.NewWriter(writer)
 			err = w.Write([]string{"Framework name", "Framework ID", "Framework Active", "Framework Status",
-				"Name", "ID", "Launched", "Finished", "Running", "CPUs", "Memory"})
+				"Name", "ID", "Launched", "Finished (UTC)", "Running (UTC)", "CPUs", "Memory", "IPs"})
 			if err != nil {
 				return true
 			}
@@ -52,7 +53,7 @@ func writeFrameworks(w *csv.Writer, frameworks []Framework, status string) error
 		tasksSet := [][]Task{framework.Tasks, framework.UnreachableTasks, framework.CompletedTasks}
 		for _, tasks := range tasksSet {
 			for _, task := range tasks {
-				line := append(frameworkPart, taskLines(task)...)
+				line := append(frameworkPart, taskLines(&task)...)
 				if err := w.Write(line); err != nil {
 					return err
 				}
@@ -62,7 +63,7 @@ func writeFrameworks(w *csv.Writer, frameworks []Framework, status string) error
 	return nil
 }
 
-func taskLines(task Task) []string {
+func taskLines(task *Task) []string {
 	launched := "N/A"
 	finished := "N/A"
 	running := "true"
@@ -81,10 +82,27 @@ func taskLines(task Task) []string {
 	}
 	cpus := strconv.FormatFloat(task.Resources.Cpus, 'f', -1, 64)
 	mem := strconv.FormatFloat(task.Resources.Mem, 'f', -1, 64)
-	return []string{task.Name, task.ID, launched, finished, running, cpus, mem}
+	ips := findTaskIPs(task)
+	return []string{task.Name, task.ID, launched, finished, running, cpus, mem, ips}
 }
 
 func secondsToSQLTime(seconds float64) string {
 	t := time.Unix(int64(seconds), 0)
 	return t.UTC().Format("2006-01-02 15:04:05")
+}
+
+func findTaskIPs(task *Task) string {
+	ips := make(map[string]interface{})
+	for _, statuses := range task.Statuses {
+		for _, networkInfo := range statuses.ContainerStatus.NetworkInfos {
+			for _, ipAddress := range networkInfo.IPAddresses {
+				ips[ipAddress.IPAddress] = nil
+			}
+		}
+	}
+	b := make([]string, 0, len(ips))
+	for ip, _ := range ips {
+		b = append(b, ip)
+	}
+	return strings.Join(b, " ")
 }
