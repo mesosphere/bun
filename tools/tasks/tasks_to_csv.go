@@ -24,7 +24,7 @@ func ToCSV(b *bundle.Bundle, writer io.Writer) error {
 			}
 			w := csv.NewWriter(writer)
 			err = w.Write([]string{"Framework name", "Framework ID", "Framework Active", "Framework Status",
-				"Name", "ID", "Launched", "Finished (UTC)", "Running (UTC)", "CPUs", "Memory", "IPs"})
+				"Name", "ID", "Launched (UTC)", "Finished (UTC)", "Running", "CPUs", "Memory", "IPs"})
 			if err != nil {
 				return true
 			}
