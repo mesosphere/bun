@@ -126,3 +126,16 @@ func (b Bundle) ForEachDirectory(fileTypeName FileTypeName, do func(d Directory)
 		}
 	}
 }
+
+// ReadFirstJSON reads JSON files of a given file in each directory. The function returns nil after the first successful
+// read or the last read error if it couldn't ready any files.
+func (b Bundle) ReadFirstJSON(typeName FileTypeName, v interface{}) error {
+	var err error
+	b.ForEachDirectory(typeName, func(d Directory) (stop bool) {
+		if err = d.ReadJSON(typeName, v); err != nil {
+			return false
+		}
+		return true
+	})
+	return err
+}

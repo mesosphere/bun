@@ -9,9 +9,10 @@ import (
 	_ "github.com/mesosphere/bun/v2/checks/health"
 	_ "github.com/mesosphere/bun/v2/checks/marathon/deployments"
 	_ "github.com/mesosphere/bun/v2/checks/marathon/marathon_lb_1.14.1"
-	_ "github.com/mesosphere/bun/v2/checks/mesos/containerizer_debug"
 	_ "github.com/mesosphere/bun/v2/checks/mesos/actormailboxes"
+	_ "github.com/mesosphere/bun/v2/checks/mesos/containerizer_debug"
 	_ "github.com/mesosphere/bun/v2/checks/mesos/mesos9868"
+	_ "github.com/mesosphere/bun/v2/checks/mesos/offered_resources"
 	_ "github.com/mesosphere/bun/v2/checks/mesos/unregistered_agents"
 	_ "github.com/mesosphere/bun/v2/checks/nodecount"
 )
