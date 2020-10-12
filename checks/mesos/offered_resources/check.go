@@ -22,7 +22,7 @@ func init() {
 
 func checkFunc(b bundle.Bundle) checks.Results {
 	var frameworks Frameworks
-	err := b.ReadFirstJSON("mesos-master-frameworks", &frameworks)
+	err := b.ReadAnyJSON("mesos-master-frameworks", &frameworks)
 	if err != nil {
 		return checks.Results{
 			checks.Result{

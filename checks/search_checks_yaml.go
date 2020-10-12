@@ -114,4 +114,10 @@ const searchChecksYAML = `
   fileTypeName: mesos-master-log
   errorPattern: 'Unable to reserve VTEP'
   cure: 'Please see this article for more information: https://support.d2iq.com/s/article/What-to-do-if-the-DC-OS-Overlay-IP-pool-is-exhausted'
+
+- name: zookeeper-tls
+  description: Detects if a ZooKeeper replica cannot connect to the ZooKeeper cluster because it is configured to connect via TLS.
+  fileTypeName: exhibitor-log
+  errorPattern: 'Unrecognized SSL message, plaintext connection?'
+  cure: Please rename or remove the /var/lib/dcos/exhibitor-tls-artifacts directory. See COPS-6586 for more details. 
 `

@@ -137,7 +137,7 @@ func findTaskIPs(task *Task) string {
 		}
 	}
 	b := make([]string, 0, len(ips))
-	for ip, _ := range ips {
+	for ip := range ips {
 		b = append(b, ip)
 	}
 	return strings.Join(b, " ")
