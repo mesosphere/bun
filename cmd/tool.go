@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mesosphere/bun/v2/tools/logstats"
 	"github.com/mesosphere/bun/v2/tools/tasks"
 
 	"github.com/mesosphere/bun/v2/tools/files"
@@ -15,19 +16,19 @@ import (
 
 var toolCmd = &cobra.Command{
 	Use:   "tool",
-	Short: "Bun development tool",
-	Long:  "Contains subcommands which help to add new file types and checks.",
+	Short: "Bun tool",
+	Long:  "Contains bundle analysis subcommands.",
 }
 
 func findFiles(cmd *cobra.Command, _ []string) {
 	fileTypes, err := files.FindFiles(bundlePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, err.Error())
+		_, _ = fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(1)
 	}
 	y, err := yaml.Marshal(&fileTypes)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, err.Error())
+		_, _ = fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(-1)
 	}
 	escape, err := cmd.Flags().GetBool("escape")
@@ -49,8 +50,17 @@ func tasksToCSV(*cobra.Command, []string) {
 	}
 }
 
+func logStats(*cobra.Command, []string) {
+	err := logstats.LogStats(currentBundle, os.Stdout)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(-1)
+	}
+}
+
 func init() {
 	rootCmd.AddCommand(toolCmd)
+
 	var findFileCmd = &cobra.Command{
 		Use:   "find-files",
 		Short: "Finds all file types in a given bundle",
@@ -70,4 +80,13 @@ func init() {
 		PreRun: preRun,
 	}
 	toolCmd.AddCommand(tasksToCSV)
+
+	var logStats = &cobra.Command{
+		Use:    "log-stats",
+		Short:  "Provides DC/OS components log stats in CSV format",
+		Long:   "Prints CSV table with statistics about DC/OS log components to stdout",
+		Run:    logStats,
+		PreRun: preRun,
+	}
+	toolCmd.AddCommand(logStats)
 }
