@@ -84,7 +84,7 @@ func init() {
 	var logStats = &cobra.Command{
 		Use:    "log-stats",
 		Short:  "Provides DC/OS components log stats in CSV format",
-		Long:   "Prints CSV table with statistics about DC/OS log components to stdout",
+		Long:   "Prints CSV table with DC/OS components log statistics to stdout",
 		Run:    logStats,
 		PreRun: preRun,
 	}
