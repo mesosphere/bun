@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	_ "github.com/mesosphere/bun/v2/checks/dcosnet/overlay"
 	_ "github.com/mesosphere/bun/v2/checks/dcosnet/vips"
 	_ "github.com/mesosphere/bun/v2/checks/dcosrequirements/cpu"
 	_ "github.com/mesosphere/bun/v2/checks/dcosrequirements/disk"
