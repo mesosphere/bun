@@ -1,9 +1,10 @@
 package bundle
 
 import (
+	_ "embed"
 	"fmt"
 
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 type yamlFile struct {
@@ -14,9 +15,12 @@ type yamlFile struct {
 	DirTypes    []string `yaml:"dirTypes"`
 }
 
+//go:embed file_types.yaml
+var filesYAML []byte
+
 func init() {
 	var files []yamlFile
-	err := yaml.Unmarshal([]byte(filesYAML), &files)
+	err := yaml.Unmarshal(filesYAML, &files)
 	if err != nil {
 		panic(err)
 	}

@@ -1,6 +1,3 @@
-package bundle
-
-const filesYAML = `
 - name: active-buildinfo-full
   contentType: JSON
   paths:
@@ -1104,4 +1101,3 @@ const filesYAML = `
   - master
   - agent
   - public agent
-`

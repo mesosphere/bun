@@ -1,6 +1,7 @@
 package checks
 
 import (
+	_ "embed"
 	"fmt"
 	"path"
 	"regexp"
@@ -143,9 +144,12 @@ func (c SearchCheck) search(host bundle.Host) Result {
 	}
 }
 
+//go:embed search_checks.yaml
+var searchChecksYAML []byte
+
 func RegisterSearchChecks() {
 	var searchChecks []SearchCheck
-	err := yaml.Unmarshal([]byte(searchChecksYAML), &searchChecks)
+	err := yaml.Unmarshal(searchChecksYAML, &searchChecks)
 	if err != nil {
 		panic("Cannot read search checks YAML: " + err.Error())
 	}

@@ -1,11 +1,8 @@
-package checks
-
-const searchChecksYAML = `
 - name: unmount-volume
   description: Checks if Mesos agents had problems unmounting local persistent volumes. MESOS-8830
   fileTypeName: mesos-agent-log
   errorPattern: 'Failed to remove rootfs mount point'
-  cure: Please, refer to the KB article https://support.d2iq.com/s/article/DC-OS-Impacted-by-a-Mesos-Agent-Garbage-Collection-Issue and MESOS-8830 
+  cure: Please, refer to the KB article https://support.d2iq.com/s/article/DC-OS-Impacted-by-a-Mesos-Agent-Garbage-Collection-Issue and MESOS-8830
 
 - name: exhibitor-disk-space
   description: Checks for disk space errors in Exhibitor logs
@@ -58,7 +55,7 @@ const searchChecksYAML = `
 - name: mesos-agent-invalid-cert
   description: Checks if there are errors for invalid certificate when fetching artifacts
   fileTypeName: mesos-agent-log
-  errorPattern: 'Container.*Failed to perform ''curl''.*SSL certificate problem: self signed certificate' 
+  errorPattern: 'Container.*Failed to perform ''curl''.*SSL certificate problem: self signed certificate'
   isErrorPatternRegexp: true
   cure: 'Mesos agent is using certificates which does not allow to fetch an artifact from some repository. Please see https://jira.mesosphere.com/browse/COPS-2315 and https://jira.mesosphere.com/browse/COPS-2106 for more information.'
 
@@ -75,7 +72,7 @@ const searchChecksYAML = `
   description: Detects kernel memory (kmem) errors in dmesg log
   fileTypeName: dmesg-log
   errorPattern: 'SLUB: Unable to allocate memory on node -1'
-  cure: 'Please see KB articles https://support.d2iq/s/article/Critical-Issue-KMEM-MSPH-2018-0006 and https://support.d2iq/s/article/Known-Issue-KMEM-with-Kubernetes-MSPH-2019-0002' 
+  cure: 'Please see KB articles https://support.d2iq/s/article/Critical-Issue-KMEM-MSPH-2018-0006 and https://support.d2iq/s/article/Known-Issue-KMEM-with-Kubernetes-MSPH-2019-0002'
 
 - name: oom-kills
   description: Detects out of memory kills in dmesg log
@@ -119,5 +116,10 @@ const searchChecksYAML = `
   description: Detects if a ZooKeeper replica cannot connect to the ZooKeeper cluster because it is configured to connect via TLS.
   fileTypeName: exhibitor-log
   errorPattern: 'Unrecognized SSL message, plaintext connection?'
-  cure: Please rename or remove the /var/lib/dcos/exhibitor-tls-artifacts directory. See COPS-6586 for more details. 
-`
+  cure: Please rename or remove the /var/lib/dcos/exhibitor-tls-artifacts directory. See COPS-6586 for more details.
+
+- name: zookeeper-len-error
+  description: Detects if a ZooKeeper client is trying to store more data to a znode than specified by the jute.maxbuffer parameter.
+  fileTypeName: exhibitor-log
+  errorPattern: 'Len error'
+  cure: 'Increase the limit by setting the "jute.maxbuffer" parameter in the file /opt/mesosphere/packages/exhibitor--<UUID>/usr/zookeeper/bin/zkServer.sh on all masters: JVMFLAGS="$JVMFLAGS -Djute.maxbuffer=2000000". See https://jira.d2iq.com/browse/COPS-6522 for details.'
