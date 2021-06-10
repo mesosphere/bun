@@ -139,7 +139,7 @@ type Task struct {
 				Name string `json:"name"`
 			} `json:"network_infos"`
 		} `json:"container_status"`
-		Healthy bool `json:"healthy"`
+		Healthy *bool `json:"healthy"`
 		Labels  []struct {
 			Key   string `json:"key"`
 			Value string `json:"value"`

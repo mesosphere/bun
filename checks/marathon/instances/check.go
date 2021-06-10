@@ -13,8 +13,8 @@ func init() {
 		Name:        "marathon-app-instances",
 		Description: "Checks if Marathon apps have required amount of instances",
 		Cure: "Applications couldn't start for multiple reasons. Check Marathon logs for the NOT SATISFIED " +
-			"pattern to make sure that there is enough resources to start tasks." +
-			"Check if tasks are failing tasks and read through their logs.",
+			"pattern to make sure that there is enough resources to start tasks. " +
+			"Check if the application's tasks are failing and read through their logs.",
 		OKSummary:      "Some Marathon apps have less or more instances than required.",
 		ProblemSummary: "All Marathon tasks have the required amount of instances.",
 		Run:            checkFunc,
@@ -36,7 +36,7 @@ func checkFunc(b bundle.Bundle) checks.Results {
 	if err != nil {
 		return checks.Results{checks.Result{
 			Status: checks.SUndefined,
-			Value:  "Couldn't read any marathon apps JSONs",
+			Value:  "Couldn't read any marathon apps JSONs: " + err.Error(),
 		}}
 	}
 	problems := make([]string, 0, len(apps.Apps))

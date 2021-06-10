@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"io"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -13,7 +14,16 @@ import (
 	"github.com/mesosphere/bun/v2/bundle"
 )
 
+var agentsMap = make(map[string]string)
+
 func ToCSV(b *bundle.Bundle, writer io.Writer) error {
+	var agents agents
+	if b.ReadAnyJSON("mesos-master-agents", &agents) != nil {
+		log.Println("Couldn't build an AgentID->IP map")
+	}
+	for _, a := range agents.Slaves {
+		agentsMap[a.Id] = a.Hostname
+	}
 	var err error
 	b.ForEachFile("mesos-master-frameworks",
 		func(f bundle.File) (stop bool) {
@@ -26,7 +36,8 @@ func ToCSV(b *bundle.Bundle, writer io.Writer) error {
 			}
 			w := csv.NewWriter(writer)
 			err = w.Write([]string{"Framework name", "Framework ID", "Framework Active", "Framework Status",
-				"Name", "ID", "State", "Launched (UTC)", "Finished (UTC)", "Duration", "Duration (seconds)", "Container Type", "Running", "CPUs", "Memory", "IPs"})
+				"Name", "ID", "State", "Health", "Launched (UTC)", "Finished (UTC)", "Duration", "Duration (seconds)",
+				"Container Type", "Running", "CPUs", "Memory", "Hostname", "IPs"})
 			if err != nil {
 				return true
 			}
@@ -74,6 +85,17 @@ func isStateTerminal(state string) bool {
 		state == "TASK_GONE" ||
 		state == "TASK_GONE_BY_OPERATOR"
 }
+func health(task *Task) string {
+	h := make([]string, 0, len(task.Statuses))
+	for _, status := range task.Statuses {
+		if status.Healthy != nil {
+			h = append(h, strconv.FormatBool(*status.Healthy))
+		} else {
+			h = append(h, "unknown")
+		}
+	}
+	return strings.Join(h, "->")
+}
 
 func taskLines(task *Task) []string {
 	var launched float64
@@ -101,12 +123,13 @@ func taskLines(task *Task) []string {
 	}
 	cpus := strconv.FormatFloat(task.Resources.Cpus, 'f', -1, 64)
 	mem := strconv.FormatFloat(task.Resources.Mem, 'f', -1, 64)
+	hostname := agentsMap[task.SlaveID]
 	ips := findTaskIPs(task)
-	return []string{task.Name, task.ID, state,
+	return []string{task.Name, task.ID, state, health(task),
 		secondsToSQLTime(launched), secondsToSQLTime(finished),
 		duration, durationS,
 		containerType,
-		running, cpus, mem, ips}
+		running, cpus, mem, hostname, ips}
 }
 
 func duration(launched float64, finished float64) (string, string) {
